@@ -34,6 +34,41 @@
         .btn-backup-import:active { background: #fde68a; }
         .backup-warn { font-size: 11px; color: #92400e; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 8px 10px; margin: 12px 0 0 0; }
 
+        .btn-manage-room { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: auto; }
+        .btn-manage-room:active { background: #e0e7ff; }
+        .btn-add-room { background: #4f46e5; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .btn-add-room:active { background: #4338ca; }
+
+        .manager-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 1001; }
+        .manager-panel { position: fixed; left: 12px; right: 12px; top: 50%; transform: translateY(-50%); max-height: 85vh; background: #f8fafc; border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.3); z-index: 1002; overflow: hidden; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; }
+        .manager-header { padding: 16px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .manager-header h3 { margin: 0; font-size: 17px; }
+        .manager-body { overflow-y: auto; padding: 16px; }
+        .manager-close { background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 17px; cursor: pointer; }
+
+        .mgr-section { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+        .mgr-section-title { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .mgr-furn-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 14px; }
+        .mgr-furn-item .furn-info { display: flex; flex-direction: column; }
+        .mgr-furn-item .furn-info small { color: #94a3b8; font-size: 11px; }
+        .btn-mgr-del { background: #fee2e2; color: #b91c1c; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-mgr-del:active { background: #fecaca; }
+        .mgr-add-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; }
+        .mgr-add-row .input-group { flex: 1; }
+        .mgr-add-row label { font-size: 11px; }
+        .mgr-add-row input { padding: 8px; font-size: 14px; }
+        .btn-mgr-add { background: #059669; color: white; border: none; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .btn-mgr-add:active { background: #047857; }
+        .mgr-danger-zone { border: 1px solid #fecaca; background: #fef2f2; border-radius: 12px; padding: 14px; }
+        .mgr-danger-zone .mgr-section-title { color: #b91c1c; }
+        .btn-mgr-del-room { background: #dc2626; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; }
+        .btn-mgr-del-room:active { background: #b91c1c; }
+        .mgr-rename-row { display: flex; gap: 8px; align-items: flex-end; }
+        .mgr-rename-row .input-group { flex: 1; }
+
+        .undo-banner { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 18px; border-radius: 12px; z-index: 1005; display: flex; align-items: center; gap: 14px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); max-width: 92%; }
+        .undo-banner button { background: #f59e0b; color: #1e293b; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .flex-box { display: flex; gap: 12px; align-items: flex-end; }
         .input-group { flex: 1; }
@@ -209,7 +244,10 @@
                 </div>
 
                 <div>
-                    <h3 style="margin-top:0;">🔍 แผนผังสิ่งของในบ้านของคุณ</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:0;">
+                        <h3 style="margin:0;">🔍 แผนผังสิ่งของในบ้านของคุณ</h3>
+                        <button type="button" class="btn-add-room" onclick="addNewRoom()">➕ เพิ่มห้องใหม่</button>
+                    </div>
                     <div id="house-display"></div>
                 </div>
             </div>
@@ -245,6 +283,20 @@
             <button class="dropdown-panel-close" onclick="closeLocationDropdown()">✕</button>
         </div>
         <div class="dropdown-panel-body" id="location-dropdown-body"></div>
+    </div>
+
+    <div id="manager-overlay" class="manager-overlay hidden" onclick="closeRoomManager()"></div>
+    <div id="manager-panel" class="manager-panel hidden">
+        <div class="manager-header">
+            <h3 id="manager-title">🛠️ จัดการห้อง</h3>
+            <button class="manager-close" onclick="closeRoomManager()">✕</button>
+        </div>
+        <div class="manager-body" id="manager-body"></div>
+    </div>
+
+    <div id="undo-banner" class="undo-banner hidden">
+        <span id="undo-text">ลบแล้ว</span>
+        <button onclick="undoLastChange()">↩️ เลิกทำ</button>
     </div>
 
     <script>
@@ -421,12 +473,34 @@
                 room.tables = arr;
             }
             if (!Array.isArray(room.tables)) room.tables = [];
+
+            // แปลง beds จากตัวเลข → array ที่มี id คงที่ (เพื่อให้ลบเตียงกลางๆ ได้โดยของในเตียงอื่นไม่เพี้ยน)
+            if (typeof room.beds === 'number') {
+                const arr = [];
+                for (let b = 1; b <= room.beds; b++) arr.push({ id: 'B' + b });
+                room.beds = arr;
+            }
+            if (!Array.isArray(room.beds)) room.beds = [];
+
+            // แปลง boxes จากตัวเลข → array ที่มี id คงที่
+            if (typeof room.boxes === 'number') {
+                const arr = [];
+                for (let bx = 1; bx <= room.boxes; bx++) arr.push({ id: 'BX' + bx });
+                room.boxes = arr;
+            }
+            if (!Array.isArray(room.boxes)) room.boxes = [];
+
             if (!room.color) {
                 room.color = ROOM_COLORS[idx % ROOM_COLORS.length];
             }
-            if (typeof room.beds !== 'number') room.beds = 0;
-            if (typeof room.boxes !== 'number') room.boxes = 0;
             if (!room.name) room.name = 'ห้องที่ ' + (idx + 1);
+
+            // ตัวนับ id ถัดไปของแต่ละชนิด เพื่อให้เมื่อเพิ่มของใหม่ได้ id ที่ไม่ซ้ำกับที่เคยมี/เคยลบ
+            room.nextCabNum = Math.max(0, ...room.cabinets.map(c => parseInt(c.id.slice(1)) || 0)) + 1;
+            room.nextTabNum = Math.max(0, ...room.tables.map(t => parseInt(t.id.slice(1)) || 0)) + 1;
+            room.nextBedNum = Math.max(0, ...room.beds.map(b => parseInt(b.id.slice(1)) || 0)) + 1;
+            room.nextBoxNum = Math.max(0, ...room.boxes.map(bx => parseInt(bx.id.slice(2)) || 0)) + 1;
+
             return room;
         }
 
@@ -575,6 +649,9 @@
                 });
             }
 
+            // แปลงทุกห้องให้เป็นโครงสร้างมาตรฐาน (beds/boxes เป็น array + ตั้งตัวนับ id) ก่อนบันทึก
+            appData.rooms = appData.rooms.map((room, idx) => migrateRoom(room, idx));
+
             await saveToStorage();
             document.getElementById('step-2-section').classList.add('hidden');
             document.getElementById('main-section').classList.remove('hidden');
@@ -612,12 +689,12 @@
                         });
                     }
                 });
-                for (let b = 1; b <= room.beds; b++) {
-                    options.push({ code: `${room.id}-B${b}`, text: `เตียงที่ ${b}` });
-                }
-                for (let bx = 1; bx <= room.boxes; bx++) {
-                    options.push({ code: `${room.id}-BX${bx}`, text: `กล่องใบที่ ${bx}` });
-                }
+                room.beds.forEach(bed => {
+                    options.push({ code: `${room.id}-${bed.id}`, text: `เตียงที่ ${bed.id.slice(1)}` });
+                });
+                room.boxes.forEach(box => {
+                    options.push({ code: `${room.id}-${box.id}`, text: `กล่องใบที่ ${box.id.slice(2)}` });
+                });
 
                 if (options.length === 0) return;
 
@@ -642,7 +719,7 @@
 
             // ถ้ายังไม่เคยเลือก ให้เลือกตำแหน่งแรกสุดเป็นค่าเริ่มต้นอัตโนมัติ (พฤติกรรมเดียวกับ select เดิม)
             if (!selectedLocationCode) {
-                const firstRoom = appData.rooms.find(r => (r.cabinets.length + r.tables.length + r.beds + r.boxes) > 0);
+                const firstRoom = appData.rooms.find(r => (r.cabinets.length + r.tables.length + r.beds.length + r.boxes.length) > 0);
                 if (firstRoom) {
                     let firstCode = null, firstText = null;
                     if (firstRoom.cabinets.length > 0) {
@@ -651,12 +728,12 @@
                     } else if (firstRoom.tables.length > 0) {
                         firstCode = `${firstRoom.id}-${firstRoom.tables[0].id}-S1`;
                         firstText = `${firstRoom.name} ➡️ โต๊ะที่ ${firstRoom.tables[0].id.slice(1)} — ${shelfLabel(1)}`;
-                    } else if (firstRoom.beds > 0) {
-                        firstCode = `${firstRoom.id}-B1`;
-                        firstText = `${firstRoom.name} ➡️ เตียงที่ 1`;
-                    } else if (firstRoom.boxes > 0) {
-                        firstCode = `${firstRoom.id}-BX1`;
-                        firstText = `${firstRoom.name} ➡️ กล่องใบที่ 1`;
+                    } else if (firstRoom.beds.length > 0) {
+                        firstCode = `${firstRoom.id}-${firstRoom.beds[0].id}`;
+                        firstText = `${firstRoom.name} ➡️ เตียงที่ ${firstRoom.beds[0].id.slice(1)}`;
+                    } else if (firstRoom.boxes.length > 0) {
+                        firstCode = `${firstRoom.id}-${firstRoom.boxes[0].id}`;
+                        firstText = `${firstRoom.name} ➡️ กล่องใบที่ ${firstRoom.boxes[0].id.slice(2)}`;
                     }
                     if (firstCode) selectLocation(firstCode, firstText, true);
                 }
@@ -738,8 +815,9 @@
 
                 let html = `
                     <div class="room-display-card" style="border-top-color:${room.color};">
-                        <h4 style="margin:0 0 10px 0; font-size:18px; border-bottom:1px dashed #cbd5e1; padding-bottom:5px; display:flex; align-items:center; gap:8px;">
+                        <h4 style="margin:0 0 10px 0; font-size:18px; border-bottom:1px dashed #cbd5e1; padding-bottom:5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                             <span class="color-dot" style="background:${room.color};"></span>🚪 ${room.name}
+                            <button type="button" class="btn-manage-room" onclick="openRoomManager('${room.id}')">🛠️ จัดการ</button>
                         </h4>
                         ${imageBlock}
                         <div class="furn-grid">
@@ -757,7 +835,7 @@
                     html += '</div>';
                 }
 
-                if (room.tables.length > 0 || room.beds > 0 || room.boxes > 0) {
+                if (room.tables.length > 0 || room.beds.length > 0 || room.boxes.length > 0) {
                     html += '<div>';
                     room.tables.forEach(tab => {
                         html += `<div class="furn-box bg-table" style="border-left-color:${room.color};"><b style="font-size:13px; color:#b45309;">🪑 โต๊ะตัวที่ ${tab.id.slice(1)}</b>`;
@@ -766,12 +844,12 @@
                         }
                         html += '</div>';
                     });
-                    for (let b = 1; b <= room.beds; b++) {
-                        html += `<div class="furn-box bg-bed" style="border-left-color:${room.color};"><b style="font-size:13px; color:#047857;">🛏️ เตียงที่ ${b}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-B${b}`)}</div></div>`;
-                    }
-                    for (let bx = 1; bx <= room.boxes; bx++) {
-                        html += `<div class="furn-box bg-box" style="border-left-color:${room.color};"><b style="font-size:13px; color:#be185d;">📦 กล่องใบที่ ${bx}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-BX${bx}`)}</div></div>`;
-                    }
+                    room.beds.forEach(bed => {
+                        html += `<div class="furn-box bg-bed" style="border-left-color:${room.color};"><b style="font-size:13px; color:#047857;">🛏️ เตียงที่ ${bed.id.slice(1)}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-${bed.id}`)}</div></div>`;
+                    });
+                    room.boxes.forEach(box => {
+                        html += `<div class="furn-box bg-box" style="border-left-color:${room.color};"><b style="font-size:13px; color:#be185d;">📦 กล่องใบที่ ${box.id.slice(2)}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-${box.id}`)}</div></div>`;
+                    });
                     html += '</div>';
                 }
 
@@ -1112,6 +1190,313 @@
             };
             reader.onerror = () => alert('❌ อ่านไฟล์ไม่สำเร็จ');
             reader.readAsText(file);
+        }
+
+        // ===== ระบบจัดการห้อง/เฟอร์นิเจอร์ (เพิ่ม/ลบ ตู้ โต๊ะ เตียง กล่อง และห้อง) =====
+
+        let currentManagedRoomId = null;
+        let undoSnapshot = null;      // สำเนาข้อมูลก่อนการเปลี่ยนแปลงล่าสุด (ไว้กดเลิกทำ)
+        let undoImageSnapshot = null; // สำเนารูปผังห้อง (กรณีลบห้องที่มีรูป)
+        let undoTimer = null;
+
+        // นับจำนวนของที่อยู่ในตำแหน่งที่ขึ้นต้นด้วย prefix (เช่นทั้งตู้ = ทุกชั้นในตู้นั้น)
+        function countItemsByPrefix(prefix) {
+            return appData.items.filter(it => it.locationCode === prefix || it.locationCode.startsWith(prefix + '-')).length;
+        }
+
+        // เก็บสแนปช็อตก่อนเปลี่ยนแปลง เพื่อให้กดเลิกทำได้
+        function takeSnapshot() {
+            undoSnapshot = JSON.stringify(appData);
+            undoImageSnapshot = JSON.stringify(roomImages);
+        }
+
+        function showUndo(message) {
+            const banner = document.getElementById('undo-banner');
+            document.getElementById('undo-text').textContent = message;
+            banner.classList.remove('hidden');
+            if (undoTimer) clearTimeout(undoTimer);
+            // ซ่อนปุ่มเลิกทำอัตโนมัติหลัง 8 วินาที (พ้นช่วงนี้ถือว่ายืนยันการเปลี่ยนแปลง)
+            undoTimer = setTimeout(() => {
+                banner.classList.add('hidden');
+                undoSnapshot = null;
+                undoImageSnapshot = null;
+            }, 8000);
+        }
+
+        function undoLastChange() {
+            if (!undoSnapshot) return;
+            try {
+                appData = JSON.parse(undoSnapshot);
+                roomImages = JSON.parse(undoImageSnapshot);
+                saveToStorage();
+                // เขียนรูปกลับเข้า storage ด้วย (เผื่อกรณีเพิ่งลบห้องที่มีรูป)
+                Object.keys(roomImages).forEach(rid => {
+                    try { store.set('roomImage:' + rid, roomImages[rid]); } catch (e) {}
+                });
+                undoSnapshot = null;
+                undoImageSnapshot = null;
+                document.getElementById('undo-banner').classList.add('hidden');
+                selectedLocationCode = null; // รีเซ็ตตำแหน่งที่เลือกไว้ กันชี้ไปตำแหน่งที่เพิ่งเปลี่ยน
+                renderLocationOptions();
+                renderRoomLegend();
+                renderHouse();
+                renderSearchResults();
+                // ถ้าโมดัลเปิดอยู่ ให้ render ใหม่
+                if (currentManagedRoomId) renderRoomManager();
+            } catch (err) {
+                alert('เลิกทำไม่สำเร็จ: ' + err.message);
+            }
+        }
+
+        function openRoomManager(roomId) {
+            currentManagedRoomId = roomId;
+            renderRoomManager();
+            document.getElementById('manager-overlay').classList.remove('hidden');
+            document.getElementById('manager-panel').classList.remove('hidden');
+        }
+
+        function closeRoomManager() {
+            currentManagedRoomId = null;
+            document.getElementById('manager-overlay').classList.add('hidden');
+            document.getElementById('manager-panel').classList.add('hidden');
+        }
+
+        function renderRoomManager() {
+            const room = appData.rooms.find(r => r.id === currentManagedRoomId);
+            if (!room) { closeRoomManager(); return; }
+
+            document.getElementById('manager-title').innerHTML =
+                `<span class="color-dot" style="background:${room.color}; margin-right:6px;"></span>🛠️ จัดการ: ${room.name}`;
+
+            let html = '';
+
+            // --- เปลี่ยนชื่อห้อง ---
+            html += `
+                <div class="mgr-section">
+                    <div class="mgr-section-title">✏️ ชื่อห้อง</div>
+                    <div class="mgr-rename-row">
+                        <div class="input-group">
+                            <input type="text" id="mgr-room-name" value="${escapeHtml(room.name)}">
+                        </div>
+                        <button class="btn-mgr-add" onclick="renameRoom()">บันทึกชื่อ</button>
+                    </div>
+                </div>`;
+
+            // --- ตู้ ---
+            html += `<div class="mgr-section"><div class="mgr-section-title">🗄️ ตู้ (${room.cabinets.length} ใบ)</div>`;
+            room.cabinets.forEach(cab => {
+                const n = countItemsByPrefix(`${room.id}-${cab.id}`);
+                html += `
+                    <div class="mgr-furn-item">
+                        <div class="furn-info">ตู้ใบที่ ${cab.id.slice(1)} <small>${cab.shelves} ชั้น • มีของ ${n} ชิ้น</small></div>
+                        <button class="btn-mgr-del" onclick="deleteFurniture('cabinet','${cab.id}')">ลบ</button>
+                    </div>`;
+            });
+            html += `
+                <div class="mgr-add-row">
+                    <div class="input-group"><label>เพิ่มตู้ใหม่ กี่ชั้น</label><input type="number" id="mgr-new-cab-shelves" min="1" value="3"></div>
+                    <button class="btn-mgr-add" onclick="addFurniture('cabinet')">➕ เพิ่มตู้</button>
+                </div></div>`;
+
+            // --- โต๊ะ ---
+            html += `<div class="mgr-section"><div class="mgr-section-title">🪑 โต๊ะ (${room.tables.length} ตัว)</div>`;
+            room.tables.forEach(tab => {
+                const n = countItemsByPrefix(`${room.id}-${tab.id}`);
+                html += `
+                    <div class="mgr-furn-item">
+                        <div class="furn-info">โต๊ะตัวที่ ${tab.id.slice(1)} <small>${tab.shelves} ชั้น • มีของ ${n} ชิ้น</small></div>
+                        <button class="btn-mgr-del" onclick="deleteFurniture('table','${tab.id}')">ลบ</button>
+                    </div>`;
+            });
+            html += `
+                <div class="mgr-add-row">
+                    <div class="input-group"><label>เพิ่มโต๊ะใหม่ กี่ชั้น</label><input type="number" id="mgr-new-tab-shelves" min="1" value="2"></div>
+                    <button class="btn-mgr-add" onclick="addFurniture('table')">➕ เพิ่มโต๊ะ</button>
+                </div></div>`;
+
+            // --- เตียง ---
+            html += `<div class="mgr-section"><div class="mgr-section-title">🛏️ เตียง (${room.beds.length} เตียง)</div>`;
+            room.beds.forEach(bed => {
+                const n = countItemsByPrefix(`${room.id}-${bed.id}`);
+                html += `
+                    <div class="mgr-furn-item">
+                        <div class="furn-info">เตียงที่ ${bed.id.slice(1)} <small>มีของ ${n} ชิ้น</small></div>
+                        <button class="btn-mgr-del" onclick="deleteFurniture('bed','${bed.id}')">ลบ</button>
+                    </div>`;
+            });
+            html += `<div class="mgr-add-row"><button class="btn-mgr-add" onclick="addFurniture('bed')" style="width:100%;">➕ เพิ่มเตียง</button></div></div>`;
+
+            // --- กล่อง ---
+            html += `<div class="mgr-section"><div class="mgr-section-title">📦 กล่องใส่ของ (${room.boxes.length} กล่อง)</div>`;
+            room.boxes.forEach(box => {
+                const n = countItemsByPrefix(`${room.id}-${box.id}`);
+                html += `
+                    <div class="mgr-furn-item">
+                        <div class="furn-info">กล่องใบที่ ${box.id.slice(2)} <small>มีของ ${n} ชิ้น</small></div>
+                        <button class="btn-mgr-del" onclick="deleteFurniture('box','${box.id}')">ลบ</button>
+                    </div>`;
+            });
+            html += `<div class="mgr-add-row"><button class="btn-mgr-add" onclick="addFurniture('box')" style="width:100%;">➕ เพิ่มกล่อง</button></div></div>`;
+
+            // --- โซนอันตราย: ลบห้อง ---
+            const totalItems = appData.items.filter(it => getRoomByCode(it.locationCode) === room).length;
+            html += `
+                <div class="mgr-danger-zone">
+                    <div class="mgr-section-title">⚠️ ลบห้องนี้ทั้งหมด</div>
+                    <p style="font-size:12px; color:#7f1d1d; margin:0 0 10px 0;">จะลบห้อง "${escapeHtml(room.name)}" พร้อมตู้/โต๊ะ/เตียง/กล่อง/รูป และของ ${totalItems} ชิ้นในห้องนี้ทั้งหมด</p>
+                    <button class="btn-mgr-del-room" onclick="deleteRoom()">🗑️ ลบห้องนี้</button>
+                </div>`;
+
+            document.getElementById('manager-body').innerHTML = html;
+        }
+
+        // ป้องกันอักขระพิเศษใน value ของ input (กันชื่อห้องที่มี " ทำ HTML พัง)
+        function escapeHtml(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function renameRoom() {
+            const room = appData.rooms.find(r => r.id === currentManagedRoomId);
+            if (!room) return;
+            const newName = document.getElementById('mgr-room-name').value.trim();
+            if (!newName) { alert('กรุณากรอกชื่อห้อง'); return; }
+            takeSnapshot();
+            room.name = newName;
+            saveToStorage();
+            renderRoomManager();
+            renderLocationOptions();
+            renderRoomLegend();
+            renderHouse();
+            renderSearchResults();
+            showUndo(`เปลี่ยนชื่อห้องเป็น "${newName}"`);
+        }
+
+        function addFurniture(type) {
+            const room = appData.rooms.find(r => r.id === currentManagedRoomId);
+            if (!room) return;
+            takeSnapshot();
+
+            if (type === 'cabinet') {
+                const shelves = parseInt(document.getElementById('mgr-new-cab-shelves').value) || 1;
+                const id = 'C' + room.nextCabNum;
+                room.nextCabNum++;
+                room.cabinets.push({ id, shelves });
+                showUndo(`เพิ่มตู้ใบที่ ${id.slice(1)} แล้ว`);
+            } else if (type === 'table') {
+                const shelves = parseInt(document.getElementById('mgr-new-tab-shelves').value) || 1;
+                const id = 'T' + room.nextTabNum;
+                room.nextTabNum++;
+                room.tables.push({ id, shelves });
+                showUndo(`เพิ่มโต๊ะตัวที่ ${id.slice(1)} แล้ว`);
+            } else if (type === 'bed') {
+                const id = 'B' + room.nextBedNum;
+                room.nextBedNum++;
+                room.beds.push({ id });
+                showUndo(`เพิ่มเตียงที่ ${id.slice(1)} แล้ว`);
+            } else if (type === 'box') {
+                const id = 'BX' + room.nextBoxNum;
+                room.nextBoxNum++;
+                room.boxes.push({ id });
+                showUndo(`เพิ่มกล่องใบที่ ${id.slice(2)} แล้ว`);
+            }
+
+            saveToStorage();
+            renderRoomManager();
+            renderLocationOptions();
+            renderHouse();
+        }
+
+        function deleteFurniture(type, furnId) {
+            const room = appData.rooms.find(r => r.id === currentManagedRoomId);
+            if (!room) return;
+
+            const itemCount = countItemsByPrefix(`${room.id}-${furnId}`);
+            const typeLabel = { cabinet: 'ตู้', table: 'โต๊ะ', bed: 'เตียง', box: 'กล่อง' }[type];
+
+            // เตือนก่อนลบ โดยเฉพาะถ้ามีของอยู่ข้างใน
+            let msg = `ต้องการลบ${typeLabel}นี้ใช่ไหม?`;
+            if (itemCount > 0) {
+                msg = `⚠️ ${typeLabel}นี้มีของอยู่ ${itemCount} ชิ้น\nถ้าลบ ของทั้ง ${itemCount} ชิ้นในนี้จะถูกลบไปด้วย (กู้คืนได้ด้วยปุ่มเลิกทำ)\n\nยืนยันลบหรือไม่?`;
+            }
+            if (!confirm(msg)) return;
+
+            takeSnapshot();
+
+            // ลบของที่อยู่ในเฟอร์นิเจอร์นี้ทั้งหมด
+            const prefix = `${room.id}-${furnId}`;
+            appData.items = appData.items.filter(it => !(it.locationCode === prefix || it.locationCode.startsWith(prefix + '-')));
+
+            // ลบตัวเฟอร์นิเจอร์ออกจาก array (id ที่ถูกลบจะไม่ถูกนำกลับมาใช้ เพราะใช้ nextXxxNum เดินหน้าอย่างเดียว)
+            if (type === 'cabinet') room.cabinets = room.cabinets.filter(c => c.id !== furnId);
+            else if (type === 'table') room.tables = room.tables.filter(t => t.id !== furnId);
+            else if (type === 'bed') room.beds = room.beds.filter(b => b.id !== furnId);
+            else if (type === 'box') room.boxes = room.boxes.filter(bx => bx.id !== furnId);
+
+            selectedLocationCode = null; // กันตำแหน่งที่เลือกไว้ชี้ไปที่เพิ่งลบ
+            saveToStorage();
+            renderRoomManager();
+            renderLocationOptions();
+            renderHouse();
+            renderSearchResults();
+            showUndo(`ลบ${typeLabel}แล้ว${itemCount > 0 ? ` (พร้อมของ ${itemCount} ชิ้น)` : ''}`);
+        }
+
+        function deleteRoom() {
+            const room = appData.rooms.find(r => r.id === currentManagedRoomId);
+            if (!room) return;
+
+            const totalItems = appData.items.filter(it => getRoomByCode(it.locationCode) === room).length;
+            const msg = `⚠️ ยืนยันลบห้อง "${room.name}"\n\nจะลบทุกอย่างในห้องนี้: ตู้ ${room.cabinets.length} • โต๊ะ ${room.tables.length} • เตียง ${room.beds.length} • กล่อง ${room.boxes.length} • ของ ${totalItems} ชิ้น • รูปผังห้อง\n\n(กู้คืนได้ด้วยปุ่มเลิกทำภายใน 8 วินาที)\n\nยืนยันลบห้องนี้หรือไม่?`;
+            if (!confirm(msg)) return;
+
+            takeSnapshot();
+
+            // ลบของทุกชิ้นในห้อง
+            appData.items = appData.items.filter(it => getRoomByCode(it.locationCode) !== room);
+            // ลบรูปผังห้อง
+            try { store.remove('roomImage:' + room.id); } catch (e) {}
+            delete roomImages[room.id];
+            // ลบตัวห้องออกจากรายการ
+            appData.rooms = appData.rooms.filter(r => r.id !== room.id);
+
+            selectedLocationCode = null;
+            saveToStorage();
+            closeRoomManager();
+            renderLocationOptions();
+            renderRoomLegend();
+            renderHouse();
+            renderSearchResults();
+            showUndo(`ลบห้อง "${room.name}" แล้ว`);
+        }
+
+        function addNewRoom() {
+            const name = prompt('ตั้งชื่อห้องใหม่:', 'ห้องใหม่');
+            if (name === null) return; // กดยกเลิก
+            const roomName = name.trim() || 'ห้องใหม่';
+
+            takeSnapshot();
+
+            // ใช้ตัวนับถาวรระดับบ้าน เพื่อให้ id ห้องไม่ซ้ำกับห้องที่เคยลบไป (กันรูปเก่าค้างมาปนห้องใหม่)
+            if (typeof appData.nextRoomNum !== 'number') {
+                const maxNum = Math.max(0, ...appData.rooms.map(r => parseInt(r.id.replace('RM-', '')) || 0));
+                appData.nextRoomNum = maxNum + 1;
+            }
+            const newId = 'RM-' + appData.nextRoomNum;
+            appData.nextRoomNum++;
+            const color = ROOM_COLORS[appData.rooms.length % ROOM_COLORS.length];
+
+            let newRoom = { id: newId, name: roomName, cabinets: [], tables: [], beds: [], boxes: [], color };
+            newRoom = migrateRoom(newRoom, appData.rooms.length); // ตั้งตัวนับ id ให้ครบ
+            appData.rooms.push(newRoom);
+
+            saveToStorage();
+            renderLocationOptions();
+            renderRoomLegend();
+            renderHouse();
+            renderSearchResults();
+            showUndo(`เพิ่มห้อง "${roomName}" แล้ว`);
+            // เปิดหน้าจัดการห้องใหม่ทันที เพื่อให้ผู้ใช้เพิ่มตู้/โต๊ะได้เลย
+            openRoomManager(newId);
         }
 
         function closeApp() {
