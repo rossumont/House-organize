@@ -19,6 +19,21 @@
         .btn-close-app { background: #16a34a; color: white; border: none; padding: 12px 28px; font-size: 15px; font-weight: 700; border-radius: 10px; cursor: pointer; }
         .btn-close-app:active { background: #15803d; }
 
+        .backup-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin-top: 20px; }
+        .backup-title { font-size: 15px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+        .backup-desc { font-size: 12px; color: #64748b; margin: 0 0 14px 0; }
+        .backup-btn-row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 560px) { .backup-btn-row { grid-template-columns: repeat(3, 1fr); } }
+        .btn-backup { border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; line-height: 1.4; text-align: center; }
+        .btn-backup span { font-size: 11px; font-weight: 400; opacity: 0.85; }
+        .btn-backup-csv { background: #dbeafe; color: #1e40af; }
+        .btn-backup-csv:active { background: #bfdbfe; }
+        .btn-backup-json { background: #e0e7ff; color: #3730a3; }
+        .btn-backup-json:active { background: #c7d2fe; }
+        .btn-backup-import { background: #fef3c7; color: #92400e; }
+        .btn-backup-import:active { background: #fde68a; }
+        .backup-warn { font-size: 11px; color: #92400e; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 8px 10px; margin: 12px 0 0 0; }
+
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .flex-box { display: flex; gap: 12px; align-items: flex-end; }
         .input-group { flex: 1; }
@@ -199,12 +214,25 @@
                 </div>
             </div>
 
+            <div class="backup-panel">
+                <div class="backup-title">💾 สำรอง / ย้ายข้อมูล</div>
+                <p class="backup-desc">ดาวน์โหลดข้อมูลเก็บไว้ หรือย้ายไปเครื่องอื่น • ไฟล์จะอยู่ในโฟลเดอร์ "ดาวน์โหลด" ของเครื่อง</p>
+                <div class="backup-btn-row">
+                    <button class="btn-backup btn-backup-csv" onclick="exportCSV()">📄 ส่งออก CSV<br><span>(ดูรายการใน Excel)</span></button>
+                    <button class="btn-backup btn-backup-json" onclick="exportJSON()">🗄️ ส่งออก JSON<br><span>(สำรองข้อมูลเต็ม)</span></button>
+                    <button class="btn-backup btn-backup-import" onclick="triggerJSONImport()">📥 นำเข้า JSON<br><span>(ย้ายจากเครื่องอื่น)</span></button>
+                </div>
+                <p class="backup-warn">⚠️ CSV ใช้ดูรายการเท่านั้น (นำกลับเข้าแอปไม่ได้) — ถ้าจะย้ายเครื่องหรือสำรองแบบครบถ้วน (รวมรูปผังห้อง) ให้ใช้ JSON</p>
+            </div>
+
             <div class="close-panel">
                 <p>💾 ทุกอย่างถูกบันทึกอัตโนมัติแล้ว ข้อมูลจะไม่หายเมื่อปิดแอพ<br>เปิดกลับมาเมื่อไหร่ ข้อมูลก็ยังอยู่ครบ</p>
                 <button class="btn-close-app" onclick="closeApp()">✅ บันทึกเสร็จแล้ว ปิดแอพตรงนี้</button>
             </div>
         </div>
     </div>
+
+    <input type="file" id="json-import-input" accept=".json,application/json" class="hidden" onchange="handleJSONImport(event)">
 
     <input type="file" id="global-room-image-input" accept="image/*" class="hidden" onchange="handleRoomImageChange(event)">
 
@@ -924,6 +952,166 @@
                 `;
             });
             resultsBox.innerHTML = html;
+        }
+
+        // ===== ส่งออก / นำเข้าข้อมูล =====
+
+        // ตัวช่วยดาวน์โหลดไฟล์ (สร้าง blob แล้วกดดาวน์โหลดอัตโนมัติ)
+        function downloadFile(content, filename, mimeType) {
+            try {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+                return true;
+            } catch (err) {
+                alert('ดาวน์โหลดไฟล์ไม่สำเร็จ: ' + err.message);
+                return false;
+            }
+        }
+
+        // สร้างชื่อไฟล์พร้อมวันที่ เช่น smart-organizer-2026-07-10
+        function backupFilename(ext) {
+            const d = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+            return `smart-organizer-${stamp}.${ext}`;
+        }
+
+        // ส่งออก CSV: รายการสิ่งของแบบตาราง (ชื่อ / ห้อง / ที่เก็บ / สถานะ)
+        // ใส่ BOM (\uFEFF) ไว้หน้าไฟล์ เพื่อให้ Excel เปิดแล้วภาษาไทยไม่เพี้ยน
+        function exportCSV() {
+            if (!appData.items || appData.items.length === 0) {
+                alert('ยังไม่มีสิ่งของให้ส่งออก');
+                return;
+            }
+
+            // ฟังก์ชันใส่เครื่องหมายคำพูดครอบ และ escape กรณีมี comma/quote/ขึ้นบรรทัดในข้อความ
+            const esc = (v) => {
+                const s = String(v == null ? '' : v);
+                return '"' + s.replace(/"/g, '""') + '"';
+            };
+
+            const rows = [['ชื่อสิ่งของ', 'ห้อง', 'ตำแหน่งที่เก็บ', 'สถานะ']];
+            appData.items.forEach(item => {
+                const room = getRoomByCode(item.locationCode);
+                const roomName = room ? room.name : '(ไม่ทราบห้อง)';
+                const fullLoc = describeLocation(item.locationCode);
+                rows.push([item.name, roomName, fullLoc, item.status]);
+            });
+
+            const csv = '\uFEFF' + rows.map(r => r.map(esc).join(',')).join('\r\n');
+            if (downloadFile(csv, backupFilename('csv'), 'text/csv;charset=utf-8;')) {
+                alert('✅ ส่งออก CSV แล้ว (' + appData.items.length + ' รายการ)\nไฟล์อยู่ในโฟลเดอร์ "ดาวน์โหลด" ของเครื่อง เปิดดูได้ใน Excel/Google Sheets');
+            }
+        }
+
+        // ส่งออก JSON: ข้อมูลเต็มทั้งหมด (ห้อง ตู้ โต๊ะ สิ่งของ + รูปผังห้องทุกห้อง)
+        // ไฟล์นี้นำกลับเข้าแอปได้ครบ เหมาะสำหรับสำรอง/ย้ายเครื่อง
+        function exportJSON() {
+            try {
+                // รวมรูปผังห้องทั้งหมดเข้าไปด้วย เพื่อให้ backup ครบถ้วน
+                const backup = {
+                    version: 3,
+                    exportedAt: new Date().toISOString(),
+                    appData: appData,
+                    roomImages: roomImages
+                };
+                const json = JSON.stringify(backup, null, 2);
+                if (downloadFile(json, backupFilename('json'), 'application/json')) {
+                    const roomCount = appData.rooms.length;
+                    const itemCount = appData.items.length;
+                    const imgCount = Object.keys(roomImages).length;
+                    alert(`✅ ส่งออก JSON แล้ว\nห้อง ${roomCount} • สิ่งของ ${itemCount} รายการ • รูปผังห้อง ${imgCount} รูป\n\nเก็บไฟล์นี้ไว้ให้ดี ใช้นำเข้ากลับได้ทุกเครื่อง`);
+                }
+            } catch (err) {
+                alert('ส่งออก JSON ไม่สำเร็จ: ' + err.message);
+            }
+        }
+
+        // นำเข้า JSON: กดปุ่มแล้วเตือนก่อน ค่อยเปิดหน้าเลือกไฟล์
+        function triggerJSONImport() {
+            const ok = confirm(
+                '⚠️ คำเตือนก่อนนำเข้าข้อมูล\n\n' +
+                'การนำเข้าไฟล์ JSON จะ "แทนที่ข้อมูลทั้งหมดในเครื่องนี้" ด้วยข้อมูลจากไฟล์\n' +
+                'ข้อมูลปัจจุบัน (ห้อง สิ่งของ รูปผังห้องทั้งหมด) จะถูกลบทิ้งและใช้ข้อมูลจากไฟล์แทน\n\n' +
+                'แนะนำ: ถ้ายังไม่ได้สำรองข้อมูลปัจจุบัน ให้กดยกเลิกแล้วกด "ส่งออก JSON" เก็บไว้ก่อน\n\n' +
+                'ต้องการนำเข้าต่อหรือไม่?'
+            );
+            if (!ok) return;
+            document.getElementById('json-import-input').click();
+        }
+
+        function handleJSONImport(event) {
+            const file = event.target.files[0];
+            event.target.value = ''; // เคลียร์ไว้ให้เลือกไฟล์เดิมซ้ำได้
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                let parsed;
+                try {
+                    parsed = JSON.parse(e.target.result);
+                } catch (err) {
+                    alert('❌ ไฟล์นี้ไม่ใช่ไฟล์ JSON ที่ถูกต้อง หรือไฟล์เสียหาย\nกรุณาเลือกไฟล์ที่ส่งออกจากแอปนี้');
+                    return;
+                }
+
+                // รองรับ 2 รูปแบบ: (1) ไฟล์ backup ที่มี appData+roomImages (2) ไฟล์ appData ตรงๆ
+                let newAppData, newRoomImages;
+                if (parsed && parsed.appData && Array.isArray(parsed.appData.rooms)) {
+                    newAppData = parsed.appData;
+                    newRoomImages = parsed.roomImages || {};
+                } else if (parsed && Array.isArray(parsed.rooms)) {
+                    newAppData = parsed;
+                    newRoomImages = {};
+                } else {
+                    alert('❌ โครงสร้างไฟล์ไม่ถูกต้อง ไม่พบข้อมูลห้อง\nกรุณาเลือกไฟล์ JSON ที่ส่งออกจากแอปนี้');
+                    return;
+                }
+
+                try {
+                    // เขียนข้อมูลใหม่ทับ
+                    appData = {
+                        rooms: (newAppData.rooms || []).map((room, idx) => migrateRoom(room, idx)),
+                        items: newAppData.items || []
+                    };
+                    saveToStorage();
+
+                    // เขียนรูปผังห้องใหม่ทับ (ลบรูปเก่าทั้งหมดก่อน)
+                    if (checkLocalStorage()) {
+                        const oldKeys = [];
+                        for (let i = 0; i < window.localStorage.length; i++) {
+                            const k = window.localStorage.key(i);
+                            if (k && k.indexOf('roomImage:') === 0) oldKeys.push(k);
+                        }
+                        oldKeys.forEach(k => window.localStorage.removeItem(k));
+                    } else {
+                        Object.keys(memoryStore).forEach(k => {
+                            if (k.indexOf('roomImage:') === 0) delete memoryStore[k];
+                        });
+                    }
+                    roomImages = {};
+                    Object.keys(newRoomImages).forEach(roomId => {
+                        roomImages[roomId] = newRoomImages[roomId];
+                        store.set('roomImage:' + roomId, newRoomImages[roomId]);
+                    });
+
+                    alert(`✅ นำเข้าข้อมูลสำเร็จ\nห้อง ${appData.rooms.length} • สิ่งของ ${appData.items.length} รายการ • รูปผังห้อง ${Object.keys(roomImages).length} รูป\n\nกำลังโหลดหน้าใหม่`);
+                    location.reload();
+                } catch (err) {
+                    alert('❌ นำเข้าข้อมูลไม่สำเร็จ: ' + err.message);
+                }
+            };
+            reader.onerror = () => alert('❌ อ่านไฟล์ไม่สำเร็จ');
+            reader.readAsText(file);
         }
 
         function closeApp() {
