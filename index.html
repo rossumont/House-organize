@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Organizer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+
+        * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+        body { background: #f8fafc; margin: 0; padding: 15px; color: #334155; }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        h1 { color: #4f46e5; margin: 0; font-size: 24px; }
+        .btn-reset { background: #ffe4e6; color: #b91c1c; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; }
+        .close-panel { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; padding: 20px; margin-top: 10px; text-align: center; }
+        .close-panel p { color: #15803d; font-size: 13px; margin: 0 0 12px 0; }
+        .btn-close-app { background: #16a34a; color: white; border: none; padding: 12px 28px; font-size: 15px; font-weight: 700; border-radius: 10px; cursor: pointer; }
+        .btn-close-app:active { background: #15803d; }
+
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .flex-box { display: flex; gap: 12px; align-items: flex-end; }
+        .input-group { flex: 1; }
+
+        label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; }
+        input, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 16px; outline: none; }
+        input:focus, select:focus { border-color: #4f46e5; }
+
+        button.btn-prime { background: #4f46e5; color: white; border: none; padding: 11px 20px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+        button.btn-prime:hover { background: #4338ca; }
+        button.btn-success { background: #059669; color: white; border: none; padding: 12px; font-size: 16px; font-weight: 600; border-radius: 8px; width: 100%; cursor: pointer; }
+
+        .room-config-row { background: #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 6px solid #4f46e5; }
+        .room-color-tag { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .color-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 10px; }
+        .furniture-block { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
+        .shelf-input-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+        .shelf-input-row label { margin: 0; font-size: 11px; flex-shrink: 0; width: 62px; }
+        .shelf-input-row input { padding: 6px 8px; font-size: 14px; }
+
+        .main-layout { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { .main-layout { grid-template-columns: 1fr 2fr; } }
+
+        .hidden { display: none !important; }
+
+        .status-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .status-label { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .status-label input { width: auto; margin-right: 4px; }
+
+        .room-display-card { background: white; border: 1px solid #e2e8f0; border-top: 6px solid #4f46e5; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .furn-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+        @media (min-width: 500px) { .furn-grid { grid-template-columns: 1fr 1fr; } }
+
+        .furn-box { padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #4f46e5; }
+        .bg-cabinet { background: #f5f3ff; }
+        .bg-table { background: #fffbeb; }
+        .bg-bed { background: #ecfdf5; }
+        .bg-box { background: #fdf2f8; }
+
+        .furniture-toggle-label { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0; }
+        .furniture-toggle-label input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: #4f46e5; }
+        .furniture-count-wrap { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; }
+
+        .room-image-wrap { position: relative; margin-bottom: 14px; }
+        .room-image { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; cursor: pointer; display: block; }
+        .room-image-remove { position: absolute; top: 8px; right: 8px; background: rgba(15,23,42,0.75); color: white; border: none; padding: 5px 10px; border-radius: 999px; font-size: 11px; cursor: pointer; }
+        .room-image-attach-btn { width: 100%; border: 2px dashed #cbd5e1; background: #f8fafc; color: #64748b; padding: 14px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 14px; }
+        .room-image-attach-btn:active { background: #f1f5f9; }
+
+        .shelf-item { background: white; border: 1px solid #e2e8f0; padding: 6px; border-radius: 6px; margin-top: 5px; }
+        .item-tag { display: inline-flex; align-items: center; padding: 3px 8px; font-size: 12px; font-weight: 600; border-radius: 4px; margin: 2px; border: 1px solid; }
+        .tag-good { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+        .tag-notsure { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .tag-trash { background: #ffe4e6; color: #991b1b; border-color: #fecdd3; }
+        .btn-del { border: none; background: transparent; color: #ef4444; font-weight: bold; margin-left: 6px; cursor: pointer; font-size: 14px; }
+
+        .search-card { background: linear-gradient(135deg, #eef2ff 0%, #ffffff 55%); border: 1px solid #c7d2fe; border-top: 5px solid #4f46e5; border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+        .search-card h3 { color: #3730a3; }
+        .search-row { display: flex; gap: 8px; }
+        .search-result-item { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #e2e8f0; border-left: 4px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; margin-top: 8px; }
+        .search-result-path { font-size: 11px; color: #94a3b8; }
+        .search-empty { font-size: 13px; color: #94a3b8; padding: 8px 0; }
+        .badge-count { background: #e0e7ff; color: #3730a3; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
+        .loading-text { font-size: 13px; color: #94a3b8; text-align: center; padding: 20px; }
+
+        .add-item-card { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 55%); border: 1px solid #a7f3d0; border-top: 5px solid #059669; border-radius: 16px; padding: 20px; }
+        .add-item-card h3 { color: #065f46; }
+
+        .legend-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+        .legend-chip { display: flex; align-items: center; gap: 5px; font-size: 12px; background: #f1f5f9; padding: 4px 10px; border-radius: 999px; }
+
+        /* Custom colored location dropdown (แทนที่ native <select> ซึ่งใส่สีต่อ option ไม่ได้บนมือถือ) */
+        .custom-select-box { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 16px; background: white; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .custom-select-box.placeholder { color: #94a3b8; }
+        .custom-select-box .sel-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-right: 8px; }
+        .custom-select-box .sel-text { display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dropdown-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.35); z-index: 998; }
+        .dropdown-panel { position: fixed; left: 15px; right: 15px; bottom: 15px; max-height: 65vh; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 999; overflow: hidden; display: flex; flex-direction: column; }
+        .dropdown-panel-header { padding: 14px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 700; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .dropdown-panel-close { background: #f1f5f9; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+        .dropdown-panel-body { overflow-y: auto; padding: 10px; }
+        .dropdown-room-group { margin-bottom: 12px; }
+        .dropdown-room-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; padding: 6px 8px; border-radius: 6px; margin-bottom: 4px; }
+        .dropdown-option { display: flex; align-items: center; gap: 8px; padding: 10px 10px 10px 26px; border-radius: 8px; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; }
+        .dropdown-option:active { background: #f1f5f9; }
+        .dropdown-option.selected { background: #eef2ff; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div>
+                <h1>🏠 Smart Organizer</h1>
+                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">กำหนดจำนวนชั้นแยกรายตู้/โต๊ะ + เตียง/กล่องเลือกมีได้ + สีประจำห้อง</div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button onclick="clearAllImages()" class="btn-reset" style="background:#fef9c3; color:#854d0e;">🖼️ ล้างรูปผังห้องทั้งหมด</button>
+                <button onclick="resetAllData()" class="btn-reset">⚠️ ล้างข้อมูลเริ่มต้นใหม่</button>
+            </div>
+        </header>
+
+        <div id="storage-warning" class="hidden" style="background:#fef3c7; border:1px solid #fde68a; color:#92400e; padding:12px 16px; border-radius:12px; margin-bottom:16px; font-size:13px;">
+            ⚠️ <b>โหมดชั่วคราว:</b> ตอนนี้เปิดไฟล์แบบที่บันทึกข้อมูลถาวรไม่ได้ (ข้อมูลจะหายเมื่อปิด) — เพื่อให้ใช้แบบเก็บข้อมูลได้จริงบน iPad กรุณาเปิดผ่าน <b>Safari</b> โดยอัปไฟล์ขึ้นเว็บ (เช่น GitHub Pages) แล้วเปิดจากลิงก์ หรือเพิ่มลงหน้าจอโฮม
+        </div>
+
+        <div id="loading-section" class="card">
+            <div class="loading-text">⏳ กำลังโหลดข้อมูล...</div>
+            <div style="text-align:center; margin-top:12px;">
+                <button onclick="clearAllImages()" class="btn-reset" style="background:#fef9c3; color:#854d0e;">ถ้าค้างนาน กดที่นี่เพื่อล้างรูปที่ค้างแล้วโหลดใหม่</button>
+            </div>
+        </div>
+
+        <div id="step-1-section" class="card hidden">
+            <h3 style="margin-top:0;">⚙️ ขั้นตอนที่ 1: บ้านของคุณมีกี่ห้อง?</h3>
+            <div class="flex-box">
+                <div class="input-group">
+                    <label>กรอกจำนวนห้องทั้งหมด</label>
+                    <input type="number" id="input-room-count" min="1" value="2">
+                </div>
+                <button onclick="goToStep2()" class="btn-prime">ถัดไป ➡️</button>
+            </div>
+        </div>
+
+        <div id="step-2-section" class="card hidden">
+            <h3 style="margin-top:0;">🛋️ ขั้นตอนที่ 2: ตั้งชื่อห้อง + จำนวนตู้/โต๊ะ + จำนวนชั้นของแต่ละใบ</h3>
+            <div style="font-size:12px; color:#64748b; margin-bottom:12px;">แต่ละห้องจะมีสีประจำห้องกำกับไว้ (จุดสีด้านซ้ายชื่อห้อง) เพื่อให้หาง่ายตอนดูผังบ้าน ตู้/โต๊ะแต่ละใบกำหนดจำนวนชั้นได้ไม่เท่ากัน ชั้นบนสุด (ชั้นที่ 1) จะแสดงเป็น "ด้านบน" ให้อัตโนมัติ ส่วนเตียงและกล่องใส่ของ ให้ติ๊กเลือกเฉพาะห้องที่มีจริง (เช่น ห้องครัวไม่ต้องติ๊กเตียง)</div>
+            <div id="rooms-config-container"></div>
+            <button onclick="generateFinalStructure()" class="btn-success" style="background:#4f46e5;">สร้างแผนผังบ้านและเริ่มจัดของ 🎉</button>
+        </div>
+
+        <div id="main-section" class="hidden">
+
+            <div class="search-card">
+                <h3 style="margin-top:0; font-size:16px;">🔎 ค้นหาสิ่งของ (เพื่อดูตำแหน่ง หรือลบ)</h3>
+                <div class="search-row">
+                    <input type="text" id="search-box" placeholder="พิมพ์ชื่อสิ่งของที่ต้องการค้นหา..." oninput="renderSearchResults()">
+                </div>
+                <div id="search-results"></div>
+            </div>
+
+            <div class="card" id="legend-card">
+                <div style="font-size:12px; font-weight:600; color:#64748b; margin-bottom:8px;">🎨 สีประจำห้อง (ใช้ดูผังบ้าน/ผลค้นหาได้เร็วขึ้น)</div>
+                <div class="legend-row" id="room-legend"></div>
+            </div>
+
+            <div class="main-layout">
+                <div>
+                    <div class="card add-item-card" style="position: sticky; top: 15px;">
+                        <h3 style="margin-top:0; color:#1e293b;">📝 บันทึกสิ่งของลงตำแหน่งเก็บ</h3>
+                        <div style="margin-bottom:12px;">
+                            <label>📦 ชื่อสิ่งของ</label>
+                            <input type="text" id="item-name" placeholder="เช่น เสื้อกันหนาว, รีโมท">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label>📍 เลือกตำแหน่งที่เก็บ</label>
+                            <div id="location-select-box" class="custom-select-box placeholder" onclick="openLocationDropdown()">
+                                <span class="sel-text" id="location-select-text">ยังไม่ได้เลือก</span>
+                                <span>▾</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label>✨ สถานะของชิ้นนี้</label>
+                            <div class="status-group">
+                                <label class="status-label" style="color:#065f46;"><input type="radio" name="item-status" value="ดี" checked>🟢 ดี</label>
+                                <label class="status-label" style="color:#92400e;"><input type="radio" name="item-status" value="ไม่แน่ใจ">🟡 ไม่ชัวร์</label>
+                                <label class="status-label" style="color:#991b1b;"><input type="radio" name="item-status" value="เตรียมทิ้ง">🔴 ทิ้ง</label>
+                            </div>
+                        </div>
+                        <button onclick="saveItem()" class="btn-success">บันทึกเข้าพิกัด 💾</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="margin-top:0;">🔍 แผนผังสิ่งของในบ้านของคุณ</h3>
+                    <div id="house-display"></div>
+                </div>
+            </div>
+
+            <div class="close-panel">
+                <p>💾 ทุกอย่างถูกบันทึกอัตโนมัติแล้ว ข้อมูลจะไม่หายเมื่อปิดแอพ<br>เปิดกลับมาเมื่อไหร่ ข้อมูลก็ยังอยู่ครบ</p>
+                <button class="btn-close-app" onclick="closeApp()">✅ บันทึกเสร็จแล้ว ปิดแอพตรงนี้</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="global-room-image-input" accept="image/*" class="hidden" onchange="handleRoomImageChange(event)">
+
+    <div id="image-processing-toast" class="hidden" style="position:fixed; left:50%; bottom:30px; transform:translateX(-50%); background:#1e293b; color:white; padding:10px 20px; border-radius:999px; font-size:13px; z-index:1000; box-shadow:0 6px 20px rgba(0,0,0,0.3);">⏳ กำลังบีบอัดและบันทึกรูป...</div>
+
+    <div id="location-dropdown-overlay" class="dropdown-overlay hidden" onclick="closeLocationDropdown()"></div>
+    <div id="location-dropdown-panel" class="dropdown-panel hidden">
+        <div class="dropdown-panel-header">
+            <span>📍 เลือกตำแหน่งที่เก็บ</span>
+            <button class="dropdown-panel-close" onclick="closeLocationDropdown()">✕</button>
+        </div>
+        <div class="dropdown-panel-body" id="location-dropdown-body"></div>
+    </div>
+
+    <script>
+        // ตัวช่วยบังคับให้หลุดจากหน้าโหลดเสมอ ไม่ว่าจะเกิดอะไรขึ้น (กันหน้าค้าง)
+        function forceExitLoading(reason) {
+            try {
+                const loading = document.getElementById('loading-section');
+                if (loading) loading.classList.add('hidden');
+                const main = document.getElementById('main-section');
+                const step1 = document.getElementById('step-1-section');
+                const step2 = document.getElementById('step-2-section');
+                // ถ้าไม่มีหน้าไหนแสดงอยู่เลย ให้แสดงหน้าเริ่มต้น (ขั้นตอนที่ 1)
+                const anyVisible =
+                    (main && !main.classList.contains('hidden')) ||
+                    (step1 && !step1.classList.contains('hidden')) ||
+                    (step2 && !step2.classList.contains('hidden'));
+                if (!anyVisible && step1) step1.classList.remove('hidden');
+            } catch (e) {}
+            if (reason) console.error('forceExitLoading:', reason);
+        }
+
+        // ถ้าโหลดไม่เสร็จภายใน 2.5 วินาที บังคับหลุดหน้าโหลด (เผื่อ error ที่ดักไม่ทัน)
+        const loadingSafetyTimer = setTimeout(() => forceExitLoading('timeout 2.5s'), 2500);
+
+        // ดักจับ error ระดับ global ทั้งหน้า ถ้ามีอะไรพังจะไม่ปล่อยให้ค้างเงียบๆ
+        window.addEventListener('error', function(ev) {
+            forceExitLoading('global error: ' + (ev.message || 'unknown'));
+        });
+
+        let appData = { rooms: [], items: [] };
+        let selectedLocationCode = null;
+        let selectedLocationLabel = null;
+        let roomImages = {};
+        let pendingImageRoomId = null;
+        const STORAGE_KEY = 'smartOrganizerV3Data';
+        const ROOM_COLORS = ['#4f46e5','#059669','#d97706','#db2777','#0891b2','#7c3aed','#dc2626','#65a30d','#0d9488','#c026d3'];
+
+        // ===== ระบบเก็บข้อมูล =====
+        // ตรวจ localStorage แบบ lazy (ตอนใช้จริง) แทนตอนโหลดสคริปต์ เพื่อไม่ให้พังตั้งแต่เริ่ม
+        // โดยเฉพาะเมื่อเปิดไฟล์ HTML ตรงๆ บน iPad (file://) ที่บางทีบล็อก localStorage
+        let localStorageWorks = null; // null = ยังไม่ได้ตรวจ
+        const memoryStore = {};
+
+        function checkLocalStorage() {
+            if (localStorageWorks !== null) return localStorageWorks;
+            try {
+                const t = '__so_test__';
+                window.localStorage.setItem(t, '1');
+                window.localStorage.removeItem(t);
+                localStorageWorks = true;
+            } catch (e) {
+                localStorageWorks = false;
+            }
+            return localStorageWorks;
+        }
+
+        const store = {
+            get(key) {
+                try {
+                    if (checkLocalStorage()) {
+                        const v = window.localStorage.getItem(key);
+                        return v === null ? null : { value: v };
+                    }
+                } catch (e) { localStorageWorks = false; }
+                return (key in memoryStore) ? { value: memoryStore[key] } : null;
+            },
+            set(key, value) {
+                try {
+                    if (checkLocalStorage()) {
+                        window.localStorage.setItem(key, value);
+                        return { value };
+                    }
+                } catch (e) {
+                    // ถ้า localStorage พังหรือเต็ม ให้ fallback เก็บใน memory (อย่างน้อยใช้งานต่อได้ในรอบนี้)
+                    localStorageWorks = false;
+                }
+                memoryStore[key] = value;
+                return { value };
+            },
+            remove(key) {
+                try {
+                    if (checkLocalStorage()) window.localStorage.removeItem(key);
+                } catch (e) {}
+                delete memoryStore[key];
+            }
+        };
+
+        // เริ่มโหลดให้แน่นอน ไม่ว่า onload event จะยิงไปแล้วหรือยัง (บางสภาพแวดล้อมเปิดไฟล์ต่างกัน)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadData);
+        } else {
+            loadData();
+        }
+
+        function loadData() {
+            clearTimeout(loadingSafetyTimer); // ยกเลิก timer เพราะเข้ากระบวนการโหลดแล้ว
+
+            // ถ้า localStorage ใช้ไม่ได้ (เช่นเปิดไฟล์ตรงๆ บน iPad) แสดงแบนเนอร์เตือนโหมดชั่วคราว
+            if (!checkLocalStorage()) {
+                const warn = document.getElementById('storage-warning');
+                if (warn) warn.classList.remove('hidden');
+            }
+
+            // ครอบทั้งกระบวนการด้วย try/catch เพื่อไม่ให้ค้างที่หน้า "กำลังโหลด" หากมี error จุดใดจุดหนึ่ง
+            try {
+                try {
+                    const result = store.get(STORAGE_KEY);
+                    if (result && result.value) {
+                        appData = JSON.parse(result.value);
+                    }
+                } catch (err) {
+                    appData = { rooms: [], items: [] };
+                }
+
+                // ย้ายข้อมูลเก่า (ตู้/โต๊ะเป็นตัวเลขล้วน) ให้กลายเป็นโครงสร้างใหม่ โดยไม่ทำข้อมูลเดิมหาย
+                appData.rooms = (appData.rooms || []).map((room, idx) => migrateRoom(room, idx));
+                if (!appData.items) appData.items = [];
+
+                document.getElementById('loading-section').classList.add('hidden');
+
+                if (appData.rooms && appData.rooms.length > 0) {
+                    document.getElementById('main-section').classList.remove('hidden');
+
+                    // โหลดรูปผังห้องของแต่ละห้อง (เก็บแยกคนละ key กัน ไม่รวมกับข้อมูลหลัก)
+                    roomImages = {};
+                    for (const room of appData.rooms) {
+                        try {
+                            const res = store.get('roomImage:' + room.id);
+                            if (res && res.value) roomImages[room.id] = res.value;
+                        } catch (err) {
+                            console.log('โหลดรูปห้อง "' + room.name + '" ไม่พบ:', err.message);
+                        }
+                    }
+
+                    // แยกดักจับแต่ละ render ไม่ให้พังทั้งหมดเพราะจุดเดียว
+                    safeRun(renderLocationOptions, 'renderLocationOptions');
+                    safeRun(renderRoomLegend, 'renderRoomLegend');
+                    safeRun(renderHouse, 'renderHouse');
+                    safeRun(renderSearchResults, 'renderSearchResults');
+                    safeRun(saveToStorage, 'saveToStorage');
+                } else {
+                    document.getElementById('step-1-section').classList.remove('hidden');
+                }
+            } catch (fatalErr) {
+                // ถ้าเกิดข้อผิดพลาดร้ายแรง ให้ซ่อนหน้าโหลดและพาไปหน้าเริ่มต้น แทนที่จะค้างไว้
+                console.error('loadData error:', fatalErr);
+                forceExitLoading('loadData fatal: ' + fatalErr.message);
+            }
+        }
+
+        // เรียกฟังก์ชันแบบปลอดภัย ถ้า throw ก็แค่ log ไว้ ไม่ให้ล้มทั้งหน้า
+        function safeRun(fn, label) {
+            try {
+                fn();
+            } catch (err) {
+                console.error('เกิดข้อผิดพลาดที่ ' + label + ':', err);
+            }
+        }
+
+        function migrateRoom(room, idx) {
+            if (!room || typeof room !== 'object') room = {};
+            if (!room.id) room.id = 'RM-' + (idx + 1);
+            if (typeof room.cabinets === 'number') {
+                const shelves = room.cabinetShelves || 1;
+                const arr = [];
+                for (let c = 1; c <= room.cabinets; c++) arr.push({ id: 'C' + c, shelves });
+                room.cabinets = arr;
+            }
+            if (!Array.isArray(room.cabinets)) room.cabinets = [];
+            if (typeof room.tables === 'number') {
+                const shelves = room.tableShelves || 1;
+                const arr = [];
+                for (let t = 1; t <= room.tables; t++) arr.push({ id: 'T' + t, shelves });
+                room.tables = arr;
+            }
+            if (!Array.isArray(room.tables)) room.tables = [];
+            if (!room.color) {
+                room.color = ROOM_COLORS[idx % ROOM_COLORS.length];
+            }
+            if (typeof room.beds !== 'number') room.beds = 0;
+            if (typeof room.boxes !== 'number') room.boxes = 0;
+            if (!room.name) room.name = 'ห้องที่ ' + (idx + 1);
+            return room;
+        }
+
+        function saveToStorage() {
+            try {
+                store.set(STORAGE_KEY, JSON.stringify(appData));
+            } catch (err) {
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + err.message + '\n(อาจเกิดจากพื้นที่เก็บข้อมูลของเบราว์เซอร์เต็ม ลองลบรูปผังห้องบางห้องที่ไม่จำเป็นออก)');
+            }
+        }
+
+        function goToStep2() {
+            const count = parseInt(document.getElementById('input-room-count').value) || 1;
+            const container = document.getElementById('rooms-config-container');
+            container.innerHTML = '';
+
+            const defaultNames = ["ห้องนอนพ่อแม่", "ห้องนอนลูก", "ห้องนั่งเล่น", "ห้องครัว", "ห้องทำงาน"];
+
+            for (let i = 1; i <= count; i++) {
+                let defaultName = defaultNames[i-1] || `ห้องที่ ${i}`;
+                const color = ROOM_COLORS[(i-1) % ROOM_COLORS.length];
+                container.innerHTML += `
+                    <div class="room-config-row" style="border-left-color:${color};">
+                        <input type="hidden" id="room-color-${i}" value="${color}">
+                        <div class="room-color-tag">
+                            <span class="color-dot" style="background:${color};"></span>
+                            <label style="font-size:14px; color:#1e293b; margin:0;">🚪 ชื่อห้องที่ ${i}</label>
+                        </div>
+                        <input type="text" id="room-name-${i}" value="${defaultName}" style="font-weight:bold;">
+                        <div class="grid-inputs">
+                            <div class="furniture-block">
+                                <label>🗄️ มีตู้กี่ใบ</label>
+                                <input type="number" id="room-cab-${i}" min="0" value="1" oninput="updateCabinetShelfInputs(${i})">
+                                <div id="cab-shelf-container-${i}"></div>
+                            </div>
+                            <div class="furniture-block">
+                                <label>🪑 มีโต๊ะกี่ตัว</label>
+                                <input type="number" id="room-tab-${i}" min="0" value="1" oninput="updateTableShelfInputs(${i})">
+                                <div id="tab-shelf-container-${i}"></div>
+                            </div>
+                            <div class="furniture-block">
+                                <label class="furniture-toggle-label">
+                                    <input type="checkbox" id="room-bed-toggle-${i}" onchange="toggleFurnitureField('bed', ${i})">
+                                    🛏️ ห้องนี้มีเตียง
+                                </label>
+                                <div id="room-bed-count-wrap-${i}" class="furniture-count-wrap hidden">
+                                    <label>มีกี่เตียง</label>
+                                    <input type="number" id="room-bed-${i}" min="1" value="1">
+                                </div>
+                            </div>
+                            <div class="furniture-block">
+                                <label class="furniture-toggle-label">
+                                    <input type="checkbox" id="room-box-toggle-${i}" onchange="toggleFurnitureField('box', ${i})">
+                                    📦 ห้องนี้มีกล่องใส่ของ
+                                </label>
+                                <div id="room-box-count-wrap-${i}" class="furniture-count-wrap hidden">
+                                    <label>มีกี่กล่อง</label>
+                                    <input type="number" id="room-box-${i}" min="1" value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('step-1-section').classList.add('hidden');
+            document.getElementById('step-2-section').classList.remove('hidden');
+
+            // สร้างช่องกรอกจำนวนชั้นเริ่มต้นให้ทุกห้อง (ตามค่าเริ่มต้น 1 ตู้ 1 โต๊ะ)
+            for (let i = 1; i <= count; i++) {
+                updateCabinetShelfInputs(i);
+                updateTableShelfInputs(i);
+            }
+        }
+
+        function updateCabinetShelfInputs(i) {
+            const count = parseInt(document.getElementById(`room-cab-${i}`).value) || 0;
+            const container = document.getElementById(`cab-shelf-container-${i}`);
+            let html = '';
+            for (let c = 1; c <= count; c++) {
+                const existing = document.getElementById(`room-cab-sh-${i}-${c}`);
+                const val = existing ? existing.value : 3;
+                html += `
+                    <div class="shelf-input-row">
+                        <label>ตู้ที่ ${c} กี่ชั้น</label>
+                        <input type="number" min="1" id="room-cab-sh-${i}-${c}" value="${val}">
+                    </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function updateTableShelfInputs(i) {
+            const count = parseInt(document.getElementById(`room-tab-${i}`).value) || 0;
+            const container = document.getElementById(`tab-shelf-container-${i}`);
+            let html = '';
+            for (let t = 1; t <= count; t++) {
+                const existing = document.getElementById(`room-tab-sh-${i}-${t}`);
+                const val = existing ? existing.value : 2;
+                html += `
+                    <div class="shelf-input-row">
+                        <label>โต๊ะที่ ${t} กี่ชั้น</label>
+                        <input type="number" min="1" id="room-tab-sh-${i}-${t}" value="${val}">
+                    </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function toggleFurnitureField(type, i) {
+            const checked = document.getElementById(`room-${type}-toggle-${i}`).checked;
+            document.getElementById(`room-${type}-count-wrap-${i}`).classList.toggle('hidden', !checked);
+        }
+
+        async function generateFinalStructure() {
+            const count = document.getElementById('rooms-config-container').children.length;
+            appData.rooms = [];
+
+            for (let i = 1; i <= count; i++) {
+                const cabCount = parseInt(document.getElementById(`room-cab-${i}`).value) || 0;
+                const cabinets = [];
+                for (let c = 1; c <= cabCount; c++) {
+                    const shelves = parseInt(document.getElementById(`room-cab-sh-${i}-${c}`).value) || 1;
+                    cabinets.push({ id: 'C' + c, shelves });
+                }
+
+                const tabCount = parseInt(document.getElementById(`room-tab-${i}`).value) || 0;
+                const tables = [];
+                for (let t = 1; t <= tabCount; t++) {
+                    const shelves = parseInt(document.getElementById(`room-tab-sh-${i}-${t}`).value) || 1;
+                    tables.push({ id: 'T' + t, shelves });
+                }
+
+                const bedChecked = document.getElementById(`room-bed-toggle-${i}`).checked;
+                const beds = bedChecked ? (parseInt(document.getElementById(`room-bed-${i}`).value) || 0) : 0;
+
+                const boxChecked = document.getElementById(`room-box-toggle-${i}`).checked;
+                const boxes = boxChecked ? (parseInt(document.getElementById(`room-box-${i}`).value) || 0) : 0;
+
+                appData.rooms.push({
+                    id: 'RM-' + i,
+                    name: document.getElementById(`room-name-${i}`).value.trim() || `ห้องที่ ${i}`,
+                    cabinets: cabinets,
+                    tables: tables,
+                    beds: beds,
+                    boxes: boxes,
+                    color: document.getElementById(`room-color-${i}`).value
+                });
+            }
+
+            await saveToStorage();
+            document.getElementById('step-2-section').classList.add('hidden');
+            document.getElementById('main-section').classList.remove('hidden');
+            renderLocationOptions();
+            renderRoomLegend();
+            renderHouse();
+            renderSearchResults();
+        }
+
+        function shelfLabel(s) {
+            return s === 1 ? 'ด้านบน' : `ชั้นที่ ${s}`;
+        }
+
+        // สร้างรายการตำแหน่งเก็บของทั้งหมด จัดกลุ่มตามห้อง พร้อมสีประจำห้อง
+        // ไม่ใช้ native <select> เพราะ browser บนมือถือ (โดยเฉพาะ iOS) ไม่ยอมแสดงสีของแต่ละ option ให้
+        function renderLocationOptions() {
+            const body = document.getElementById('location-dropdown-body');
+            let html = '';
+
+            appData.rooms.forEach(room => {
+                const options = [];
+                room.cabinets.forEach(cab => {
+                    for (let s = 1; s <= cab.shelves; s++) {
+                        options.push({
+                            code: `${room.id}-${cab.id}-S${s}`,
+                            text: `ตู้ที่ ${cab.id.slice(1)} — ${shelfLabel(s)}`
+                        });
+                    }
+                });
+                room.tables.forEach(tab => {
+                    for (let s = 1; s <= tab.shelves; s++) {
+                        options.push({
+                            code: `${room.id}-${tab.id}-S${s}`,
+                            text: `โต๊ะที่ ${tab.id.slice(1)} — ${shelfLabel(s)}`
+                        });
+                    }
+                });
+                for (let b = 1; b <= room.beds; b++) {
+                    options.push({ code: `${room.id}-B${b}`, text: `เตียงที่ ${b}` });
+                }
+                for (let bx = 1; bx <= room.boxes; bx++) {
+                    options.push({ code: `${room.id}-BX${bx}`, text: `กล่องใบที่ ${bx}` });
+                }
+
+                if (options.length === 0) return;
+
+                html += `
+                    <div class="dropdown-room-group">
+                        <div class="dropdown-room-title" style="background:${room.color}22; color:${room.color};">
+                            <span class="color-dot" style="background:${room.color};"></span>${room.name}
+                        </div>
+                `;
+                options.forEach(opt => {
+                    const isSelected = opt.code === selectedLocationCode;
+                    html += `
+                        <div class="dropdown-option ${isSelected ? 'selected' : ''}" style="border-left-color:${room.color};" onclick="selectLocation('${opt.code}', '${room.name} ➡️ ${opt.text}')">
+                            ${opt.text}
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            });
+
+            body.innerHTML = html || `<div class="search-empty">ยังไม่มีตำแหน่งเก็บของ</div>`;
+
+            // ถ้ายังไม่เคยเลือก ให้เลือกตำแหน่งแรกสุดเป็นค่าเริ่มต้นอัตโนมัติ (พฤติกรรมเดียวกับ select เดิม)
+            if (!selectedLocationCode) {
+                const firstRoom = appData.rooms.find(r => (r.cabinets.length + r.tables.length + r.beds + r.boxes) > 0);
+                if (firstRoom) {
+                    let firstCode = null, firstText = null;
+                    if (firstRoom.cabinets.length > 0) {
+                        firstCode = `${firstRoom.id}-${firstRoom.cabinets[0].id}-S1`;
+                        firstText = `${firstRoom.name} ➡️ ตู้ที่ ${firstRoom.cabinets[0].id.slice(1)} — ${shelfLabel(1)}`;
+                    } else if (firstRoom.tables.length > 0) {
+                        firstCode = `${firstRoom.id}-${firstRoom.tables[0].id}-S1`;
+                        firstText = `${firstRoom.name} ➡️ โต๊ะที่ ${firstRoom.tables[0].id.slice(1)} — ${shelfLabel(1)}`;
+                    } else if (firstRoom.beds > 0) {
+                        firstCode = `${firstRoom.id}-B1`;
+                        firstText = `${firstRoom.name} ➡️ เตียงที่ 1`;
+                    } else if (firstRoom.boxes > 0) {
+                        firstCode = `${firstRoom.id}-BX1`;
+                        firstText = `${firstRoom.name} ➡️ กล่องใบที่ 1`;
+                    }
+                    if (firstCode) selectLocation(firstCode, firstText, true);
+                }
+            }
+        }
+
+        function openLocationDropdown() {
+            document.getElementById('location-dropdown-overlay').classList.remove('hidden');
+            document.getElementById('location-dropdown-panel').classList.remove('hidden');
+        }
+
+        function closeLocationDropdown() {
+            document.getElementById('location-dropdown-overlay').classList.add('hidden');
+            document.getElementById('location-dropdown-panel').classList.add('hidden');
+        }
+
+        function selectLocation(code, label, skipClose) {
+            selectedLocationCode = code;
+            selectedLocationLabel = label;
+
+            const room = getRoomByCode(code);
+            const box = document.getElementById('location-select-box');
+            box.classList.remove('placeholder');
+            box.innerHTML = `
+                <span class="sel-text"><span class="sel-dot" style="background:${room ? room.color : '#94a3b8'};"></span>${label}</span>
+                <span>▾</span>
+            `;
+
+            renderLocationOptions();
+            if (!skipClose) closeLocationDropdown();
+        }
+
+        function renderRoomLegend() {
+            const legend = document.getElementById('room-legend');
+            legend.innerHTML = appData.rooms.map(room => `
+                <div class="legend-chip">
+                    <span class="color-dot" style="background:${room.color};"></span>
+                    ${room.name}
+                </div>
+            `).join('');
+        }
+
+        async function saveItem() {
+            const nameInput = document.getElementById('item-name');
+            const name = nameInput.value.trim();
+            const locationCode = selectedLocationCode;
+            const status = document.querySelector('input[name="item-status"]:checked').value;
+
+            if (!name) { alert('กรุณากรอกชื่อสิ่งของด้วยครับ!'); return; }
+            if (!locationCode) { alert('กรุณาเลือกตำแหน่งที่เก็บด้วยครับ!'); return; }
+
+            appData.items.push({ id: Date.now(), name: name, locationCode: locationCode, status: status });
+            await saveToStorage();
+            nameInput.value = '';
+            renderHouse();
+            renderSearchResults();
+        }
+
+        async function deleteItem(itemId) {
+            appData.items = appData.items.filter(item => item.id !== itemId);
+            await saveToStorage();
+            renderHouse();
+            renderSearchResults();
+        }
+
+        function renderHouse() {
+            const container = document.getElementById('house-display');
+            container.innerHTML = '';
+
+            appData.rooms.forEach(room => {
+                const img = roomImages[room.id];
+                const imageBlock = img
+                    ? `<div class="room-image-wrap">
+                           <img src="${img}" class="room-image">
+                           <button type="button" class="room-image-remove" onclick="event.stopPropagation(); removeRoomImage('${room.id}'); return false;">🗑️ ลบรูป</button>
+                       </div>
+                       <button type="button" class="room-image-attach-btn" style="margin-top:6px;" onclick="triggerRoomImageUpload('${room.id}')">🔄 เปลี่ยนรูปผังห้องนี้</button>`
+                    : `<button type="button" class="room-image-attach-btn" onclick="triggerRoomImageUpload('${room.id}')">📷 แนบรูปผังห้องนี้ (ไม่บังคับ)</button>`;
+
+                let html = `
+                    <div class="room-display-card" style="border-top-color:${room.color};">
+                        <h4 style="margin:0 0 10px 0; font-size:18px; border-bottom:1px dashed #cbd5e1; padding-bottom:5px; display:flex; align-items:center; gap:8px;">
+                            <span class="color-dot" style="background:${room.color};"></span>🚪 ${room.name}
+                        </h4>
+                        ${imageBlock}
+                        <div class="furn-grid">
+                `;
+
+                if (room.cabinets.length > 0) {
+                    html += '<div>';
+                    room.cabinets.forEach(cab => {
+                        html += `<div class="furn-box bg-cabinet" style="border-left-color:${room.color};"><b style="font-size:13px; color:#4338ca;">🗄️ ตู้ใบที่ ${cab.id.slice(1)}</b>`;
+                        for (let s = 1; s <= cab.shelves; s++) {
+                            html += `<div class="shelf-item"><span style="font-size:10px; color:#94a3b8; display:block;">${shelfLabel(s)}</span>${getItemsHtml(`${room.id}-${cab.id}-S${s}`)}</div>`;
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+
+                if (room.tables.length > 0 || room.beds > 0 || room.boxes > 0) {
+                    html += '<div>';
+                    room.tables.forEach(tab => {
+                        html += `<div class="furn-box bg-table" style="border-left-color:${room.color};"><b style="font-size:13px; color:#b45309;">🪑 โต๊ะตัวที่ ${tab.id.slice(1)}</b>`;
+                        for (let s = 1; s <= tab.shelves; s++) {
+                            html += `<div class="shelf-item"><span style="font-size:10px; color:#d97706; display:block;">${shelfLabel(s)}</span>${getItemsHtml(`${room.id}-${tab.id}-S${s}`)}</div>`;
+                        }
+                        html += '</div>';
+                    });
+                    for (let b = 1; b <= room.beds; b++) {
+                        html += `<div class="furn-box bg-bed" style="border-left-color:${room.color};"><b style="font-size:13px; color:#047857;">🛏️ เตียงที่ ${b}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-B${b}`)}</div></div>`;
+                    }
+                    for (let bx = 1; bx <= room.boxes; bx++) {
+                        html += `<div class="furn-box bg-box" style="border-left-color:${room.color};"><b style="font-size:13px; color:#be185d;">📦 กล่องใบที่ ${bx}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-BX${bx}`)}</div></div>`;
+                    }
+                    html += '</div>';
+                }
+
+                html += `</div></div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        // บีบอัดรูปก่อนบันทึกเสมอ: ย่อความกว้างเหลือไม่เกิน 800px และลดคุณภาพเหลือ 70%
+        // เพื่อให้ไฟล์เล็กพอ (ปกติเหลือราว 100-300 KB) ไม่ว่าไฟล์ต้นฉบับ/ภาพแคปหน้าจอจะใหญ่แค่ไหนก็ตาม
+        function compressImageFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const maxWidth = 800;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round(height * (maxWidth / width));
+                            width = maxWidth;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.onerror = () => reject(new Error('ไฟล์รูปเสียหายหรือเปิดไม่ได้'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('อ่านไฟล์ไม่สำเร็จ'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function triggerRoomImageUpload(roomId) {
+            pendingImageRoomId = roomId;
+            document.getElementById('global-room-image-input').click();
+        }
+
+        async function handleRoomImageChange(event) {
+            const file = event.target.files[0];
+            event.target.value = ''; // เคลียร์ค่าไว้ เพื่อให้เลือกไฟล์เดิมซ้ำได้อีกครั้งถ้าต้องการ
+            if (!file || !pendingImageRoomId) return;
+
+            const roomId = pendingImageRoomId;
+            const room = appData.rooms.find(r => r.id === roomId);
+            const roomLabel = room ? room.name : roomId;
+            const toast = document.getElementById('image-processing-toast');
+            toast.classList.remove('hidden');
+
+            try {
+                const dataUrl = await compressImageFile(file);
+                try {
+                    store.set('roomImage:' + roomId, dataUrl);
+                } catch (storageErr) {
+                    // localStorage เต็ม (มักเกิดเมื่อรูปเยอะ/ใหญ่รวมกันเกินโควต้าของเบราว์เซอร์ ~5MB)
+                    alert(`❌ บันทึกรูปห้อง "${roomLabel}" ไม่สำเร็จ: พื้นที่เก็บข้อมูลของเบราว์เซอร์เต็ม\nลองลบรูปผังห้องอื่นที่ไม่จำเป็นออกก่อน แล้วค่อยแนบใหม่`);
+                    return;
+                }
+
+                // ตรวจสอบซ้ำว่าข้อมูลถูกบันทึกจริง โดยดึงกลับมาเทียบ
+                const verify = store.get('roomImage:' + roomId);
+                if (!verify || verify.value !== dataUrl) {
+                    alert(`❌ บันทึกรูปห้อง "${roomLabel}" ไม่สำเร็จ (ตรวจสอบย้อนกลับไม่ตรง) กรุณาลองรูปที่เล็กลง`);
+                    return;
+                }
+
+                roomImages[roomId] = dataUrl;
+                renderHouse();
+                alert(`✅ แนบรูปห้อง "${roomLabel}" สำเร็จแล้ว ปิด-เปิดแอพใหม่รูปก็จะยังอยู่`);
+            } catch (err) {
+                alert(`❌ แนบรูปห้อง "${roomLabel}" ไม่สำเร็จ: ${err.message}`);
+            } finally {
+                pendingImageRoomId = null;
+                toast.classList.add('hidden');
+            }
+        }
+
+        function removeRoomImage(roomId) {
+            if (!confirm('ต้องการลบรูปผังห้องนี้ใช่ไหม?')) return;
+
+            // ลบ key หลักของห้องนี้
+            try { store.remove('roomImage:' + roomId); } catch (err) {}
+
+            // กวาดลบ key รูปที่ค้างซึ่งมี roomId นี้อยู่ (เผื่อค้างจากเวอร์ชันเก่า/สภาพแวดล้อมอื่น)
+            try {
+                if (checkLocalStorage()) {
+                    const toRemove = [];
+                    for (let i = 0; i < window.localStorage.length; i++) {
+                        const key = window.localStorage.key(i);
+                        if (key && key.indexOf('roomImage:') === 0 && key.indexOf(roomId) !== -1) toRemove.push(key);
+                    }
+                    toRemove.forEach(k => window.localStorage.removeItem(k));
+                } else {
+                    Object.keys(memoryStore).forEach(k => {
+                        if (k.indexOf('roomImage:') === 0 && k.indexOf(roomId) !== -1) delete memoryStore[k];
+                    });
+                }
+            } catch (err) {}
+
+            delete roomImages[roomId];
+            renderHouse();
+        }
+
+        function getItemsHtml(code) {
+            const filtered = appData.items.filter(item => item.locationCode === code);
+            if (filtered.length === 0) return '<span style="font-size:12px; color:#cbd5e1; italic">ว่าง</span>';
+
+            return filtered.map(item => {
+                let c = 'tag-good';
+                if (item.status === 'ไม่แน่ใจ') c = 'tag-notsure';
+                if (item.status === 'เตรียมทิ้ง') c = 'tag-trash';
+                return `<span class="item-tag ${c}">${item.name}<button class="btn-del" onclick="deleteItem(${item.id})">×</button></span>`;
+            }).join('');
+        }
+
+        function getRoomByCode(code) {
+            return appData.rooms.find(r => code.startsWith(r.id + '-'));
+        }
+
+        function describeLocation(code) {
+            const room = getRoomByCode(code);
+            if (!room) return code;
+
+            const rest = code.slice(room.id.length + 1);
+            if (rest.startsWith('C')) {
+                const [cPart, sPart] = rest.split('-');
+                return `${room.name} ➡️ ตู้ที่ ${cPart.slice(1)} ${shelfLabel(parseInt(sPart.slice(1)))}`;
+            }
+            if (rest.startsWith('T')) {
+                const [tPart, sPart] = rest.split('-');
+                return `${room.name} ➡️ โต๊ะที่ ${tPart.slice(1)} ${shelfLabel(parseInt(sPart.slice(1)))}`;
+            }
+            if (rest.startsWith('BX')) {
+                return `${room.name} ➡️ กล่องใบที่ ${rest.slice(2)}`;
+            }
+            if (rest.startsWith('B')) {
+                return `${room.name} ➡️ เตียงที่ ${rest.slice(1)}`;
+            }
+            return `${room.name} ➡️ ${rest}`;
+        }
+
+        function renderSearchResults() {
+            const query = document.getElementById('search-box').value.trim().toLowerCase();
+            const resultsBox = document.getElementById('search-results');
+
+            if (!query) {
+                resultsBox.innerHTML = `<div class="search-empty">พิมพ์คำค้นเพื่อค้นหาสิ่งของทั้งบ้าน (ไม่ต้องเปิดดูทีละห้อง)</div>`;
+                return;
+            }
+
+            const matches = appData.items.filter(item => item.name.toLowerCase().includes(query));
+
+            if (matches.length === 0) {
+                resultsBox.innerHTML = `<div class="search-empty">ไม่พบสิ่งของที่ตรงกับ "${query}"</div>`;
+                return;
+            }
+
+            let html = `<div style="font-size:12px; color:#64748b; margin-top:8px;">พบ <span class="badge-count">${matches.length} รายการ</span></div>`;
+            matches.forEach(item => {
+                let statusIcon = '🟢';
+                if (item.status === 'ไม่แน่ใจ') statusIcon = '🟡';
+                if (item.status === 'เตรียมทิ้ง') statusIcon = '🔴';
+                const room = getRoomByCode(item.locationCode);
+                const borderColor = room ? room.color : '#cbd5e1';
+                html += `
+                    <div class="search-result-item" style="border-left-color:${borderColor};">
+                        <div>
+                            <div style="font-weight:600; font-size:14px;">${statusIcon} ${item.name}</div>
+                            <div class="search-result-path">${describeLocation(item.locationCode)}</div>
+                        </div>
+                        <button class="btn-del" style="font-size:18px;" onclick="deleteItem(${item.id})" title="ลบสิ่งของนี้">×</button>
+                    </div>
+                `;
+            });
+            resultsBox.innerHTML = html;
+        }
+
+        function closeApp() {
+            saveToStorage(); // เซฟย้ำอีกครั้งให้มั่นใจก่อนปิด
+            // เบราว์เซอร์ส่วนใหญ่ห้าม script ปิดแท็บที่ผู้ใช้เปิดเอง จึงลองปิดก่อน ถ้าไม่ได้ค่อยแจ้งวิธีปิดเอง
+            window.open('', '_self');
+            window.close();
+            setTimeout(() => {
+                alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว ข้อมูลจะไม่หาย\n\nเบราว์เซอร์ไม่อนุญาตให้ปิดแท็บอัตโนมัติ กรุณาปิดแท็บ/หน้าต่างนี้ได้เลย เปิดกลับมาเมื่อไหร่ข้อมูลก็ยังอยู่');
+            }, 300);
+        }
+
+        // ล้างรูปผังห้องทั้งหมดออกจากระบบ กวาดทุก key ที่ขึ้นต้นด้วย roomImage: แม้จะเป็นรูปเก่าที่ค้างอยู่
+        // (เผื่อกรณีค้างจนเข้าหน้าหลักไม่ได้ ปุ่มนี้กดได้เสมอ)
+        function clearAllImages() {
+            if (!confirm('ต้องการล้างรูปผังห้องทั้งหมดใช่ไหม? (ข้อมูลห้อง ตู้ และสิ่งของจะยังอยู่ครบ ลบเฉพาะรูป)')) return;
+
+            let removed = 0;
+            try {
+                if (checkLocalStorage()) {
+                    // เก็บ key ที่ต้องลบก่อน แล้วค่อยลบ เพื่อไม่ให้ index เพี้ยนระหว่างวนลูป
+                    const keysToRemove = [];
+                    for (let i = 0; i < window.localStorage.length; i++) {
+                        const key = window.localStorage.key(i);
+                        if (key && key.indexOf('roomImage:') === 0) keysToRemove.push(key);
+                    }
+                    keysToRemove.forEach(k => { window.localStorage.removeItem(k); removed++; });
+                } else {
+                    Object.keys(memoryStore).forEach(k => {
+                        if (k.indexOf('roomImage:') === 0) { delete memoryStore[k]; removed++; }
+                    });
+                }
+            } catch (err) {
+                alert('เกิดข้อผิดพลาดขณะล้างรูป: ' + err.message);
+                return;
+            }
+
+            roomImages = {};
+            alert('✅ ล้างรูปผังห้องทั้งหมดแล้ว (' + removed + ' รูป) กำลังโหลดหน้าใหม่');
+            location.reload();
+        }
+
+        function resetAllData() {
+            if (confirm('ต้องการล้างข้อมูลทั้งหมดใช่ไหม? การลบนี้ไม่สามารถกู้คืนได้')) {
+                try {
+                    store.remove(STORAGE_KEY);
+                } catch (err) {
+                    // ไม่มี key อยู่แล้วก็ไม่เป็นไร
+                }
+                // ลบรูปผังห้องทุกห้องด้วย ไม่ให้ค้างอยู่ในเบราว์เซอร์
+                for (const room of appData.rooms) {
+                    try {
+                        store.remove('roomImage:' + room.id);
+                    } catch (err) {
+                        // ไม่มีรูปอยู่แล้วก็ไม่เป็นไร
+                    }
+                }
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
