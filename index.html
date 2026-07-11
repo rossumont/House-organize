@@ -254,10 +254,10 @@
 
             <div class="backup-panel">
                 <div class="backup-title">💾 สำรอง / ย้ายข้อมูล</div>
-                <p class="backup-desc">ดาวน์โหลดข้อมูลเก็บไว้ หรือย้ายไปเครื่องอื่น • ไฟล์จะอยู่ในโฟลเดอร์ "ดาวน์โหลด" ของเครื่อง</p>
+                <p class="backup-desc">เก็บข้อมูลไว้ หรือย้ายไปเครื่องอื่น • บน iPhone/iPad จะเด้งเมนูแชร์ให้เลือก "บันทึกลงไฟล์" หรือส่ง AirDrop/LINE/อีเมล • บนคอมพิวเตอร์จะดาวน์โหลดลงโฟลเดอร์ "ดาวน์โหลด"</p>
                 <div class="backup-btn-row">
-                    <button class="btn-backup btn-backup-csv" onclick="exportCSV()">📄 ส่งออก CSV<br><span>(ดูรายการใน Excel)</span></button>
-                    <button class="btn-backup btn-backup-json" onclick="exportJSON()">🗄️ ส่งออก JSON<br><span>(สำรองข้อมูลเต็ม)</span></button>
+                    <button class="btn-backup btn-backup-csv" onclick="exportCSV()">📤 แชร์/บันทึก CSV<br><span>(ดูรายการใน Excel)</span></button>
+                    <button class="btn-backup btn-backup-json" onclick="exportJSON()">📤 แชร์/บันทึก JSON<br><span>(สำรอง/ย้ายเครื่อง)</span></button>
                     <button class="btn-backup btn-backup-import" onclick="triggerJSONImport()">📥 นำเข้า JSON<br><span>(ย้ายจากเครื่องอื่น)</span></button>
                 </div>
                 <p class="backup-warn">⚠️ CSV ใช้ดูรายการเท่านั้น (นำกลับเข้าแอปไม่ได้) — ถ้าจะย้ายเครื่องหรือสำรองแบบครบถ้วน (รวมรูปผังห้อง) ให้ใช้ JSON</p>
@@ -297,6 +297,19 @@
     <div id="undo-banner" class="undo-banner hidden">
         <span id="undo-text">ลบแล้ว</span>
         <button onclick="undoLastChange()">↩️ เลิกทำ</button>
+    </div>
+
+    <div id="text-fallback-overlay" class="manager-overlay hidden" onclick="closeTextFallback()"></div>
+    <div id="text-fallback-panel" class="manager-panel hidden">
+        <div class="manager-header">
+            <h3 id="text-fallback-title">📋 คัดลอกข้อมูล</h3>
+            <button class="manager-close" onclick="closeTextFallback()">✕</button>
+        </div>
+        <div class="manager-body">
+            <p style="font-size:12px; color:#64748b; margin:0 0 10px 0;">เครื่องนี้แชร์/ดาวน์โหลดไฟล์ไม่ได้ ให้กด "คัดลอกทั้งหมด" แล้วนำไปวางในแอปโน้ตหรืออีเมล เพื่อบันทึกเป็นไฟล์</p>
+            <textarea id="text-fallback-area" readonly style="width:100%; height:200px; font-size:12px; font-family:monospace; border:1px solid #cbd5e1; border-radius:8px; padding:10px;"></textarea>
+            <button class="btn-mgr-add" style="width:100%; margin-top:10px;" onclick="copyTextFallback()">📋 คัดลอกทั้งหมด</button>
+        </div>
     </div>
 
     <script>
@@ -1034,8 +1047,25 @@
 
         // ===== ส่งออก / นำเข้าข้อมูล =====
 
-        // ตัวช่วยดาวน์โหลดไฟล์ (สร้าง blob แล้วกดดาวน์โหลดอัตโนมัติ)
-        function downloadFile(content, filename, mimeType) {
+        // แชร์หรือบันทึกไฟล์ — ออกแบบให้ทำงานดีบน iPhone/iPad
+        // ลำดับความพยายาม: (1) แชร์ไฟล์ผ่านเมนู iOS (Web Share) (2) ดาวน์โหลดปกติ (3) แสดงข้อความให้ก๊อป
+        async function shareOrDownloadFile(content, filename, mimeType, successMsg) {
+            // (1) ลองแชร์เป็น "ไฟล์" ผ่านเมนูแชร์ของเครื่อง (iPhone/iPad รองรับ เมนูเด้งให้เลือกบันทึก/ส่งต่อ)
+            try {
+                if (navigator.canShare && typeof File !== 'undefined') {
+                    const file = new File([content], filename, { type: mimeType });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ files: [file], title: filename });
+                        return; // แชร์สำเร็จ (หรือผู้ใช้กดยกเลิกเอง) ไม่ต้องทำอะไรต่อ
+                    }
+                }
+            } catch (err) {
+                // ผู้ใช้กดยกเลิกเมนูแชร์ = ไม่ถือว่า error ไม่ต้อง fallback
+                if (err && err.name === 'AbortError') return;
+                // ถ้าแชร์พังด้วยเหตุอื่น ค่อยตกไป fallback ข้างล่าง
+            }
+
+            // (2) ลองดาวน์โหลดแบบปกติ (ใช้ได้ดีบนคอมพิวเตอร์)
             try {
                 const blob = new Blob([content], { type: mimeType });
                 const url = URL.createObjectURL(blob);
@@ -1048,10 +1078,37 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                 }, 100);
-                return true;
+                if (successMsg) alert(successMsg);
+                return;
             } catch (err) {
-                alert('ดาวน์โหลดไฟล์ไม่สำเร็จ: ' + err.message);
-                return false;
+                // (3) ถ้าดาวน์โหลดก็ไม่ได้ แสดงข้อความบนหน้าจอให้ก๊อปเอง (ทางสุดท้าย ไม่มีทางตัน)
+                showTextFallback(content, filename);
+            }
+        }
+
+        // แสดงเนื้อหาไฟล์บนหน้าจอให้ผู้ใช้เลือกก๊อปทั้งหมด (ใช้เมื่อแชร์/ดาวน์โหลดไม่ได้จริงๆ)
+        function showTextFallback(content, filename) {
+            const overlay = document.getElementById('text-fallback-overlay');
+            const panel = document.getElementById('text-fallback-panel');
+            document.getElementById('text-fallback-title').textContent = '📋 คัดลอกข้อมูล: ' + filename;
+            document.getElementById('text-fallback-area').value = content;
+            overlay.classList.remove('hidden');
+            panel.classList.remove('hidden');
+        }
+
+        function closeTextFallback() {
+            document.getElementById('text-fallback-overlay').classList.add('hidden');
+            document.getElementById('text-fallback-panel').classList.add('hidden');
+        }
+
+        function copyTextFallback() {
+            const area = document.getElementById('text-fallback-area');
+            area.select();
+            try {
+                document.execCommand('copy');
+                alert('✅ คัดลอกแล้ว นำไปวางในแอปโน้ต/อีเมล แล้วบันทึกเป็นไฟล์ได้');
+            } catch (e) {
+                alert('กรุณากดค้างที่ข้อความแล้วเลือก "เลือกทั้งหมด" → "คัดลอก" เอง');
             }
         }
 
@@ -1065,7 +1122,7 @@
 
         // ส่งออก CSV: รายการสิ่งของแบบตาราง (ชื่อ / ห้อง / ที่เก็บ / สถานะ)
         // ใส่ BOM (\uFEFF) ไว้หน้าไฟล์ เพื่อให้ Excel เปิดแล้วภาษาไทยไม่เพี้ยน
-        function exportCSV() {
+        async function exportCSV() {
             if (!appData.items || appData.items.length === 0) {
                 alert('ยังไม่มีสิ่งของให้ส่งออก');
                 return;
@@ -1086,14 +1143,17 @@
             });
 
             const csv = '\uFEFF' + rows.map(r => r.map(esc).join(',')).join('\r\n');
-            if (downloadFile(csv, backupFilename('csv'), 'text/csv;charset=utf-8;')) {
-                alert('✅ ส่งออก CSV แล้ว (' + appData.items.length + ' รายการ)\nไฟล์อยู่ในโฟลเดอร์ "ดาวน์โหลด" ของเครื่อง เปิดดูได้ใน Excel/Google Sheets');
-            }
+            await shareOrDownloadFile(
+                csv,
+                backupFilename('csv'),
+                'text/csv;charset=utf-8;',
+                '✅ ส่งออก CSV แล้ว (' + appData.items.length + ' รายการ)\nไฟล์อยู่ในโฟลเดอร์ "ดาวน์โหลด" เปิดใน Excel/Google Sheets ได้'
+            );
         }
 
         // ส่งออก JSON: ข้อมูลเต็มทั้งหมด (ห้อง ตู้ โต๊ะ สิ่งของ + รูปผังห้องทุกห้อง)
         // ไฟล์นี้นำกลับเข้าแอปได้ครบ เหมาะสำหรับสำรอง/ย้ายเครื่อง
-        function exportJSON() {
+        async function exportJSON() {
             try {
                 // รวมรูปผังห้องทั้งหมดเข้าไปด้วย เพื่อให้ backup ครบถ้วน
                 const backup = {
@@ -1103,12 +1163,15 @@
                     roomImages: roomImages
                 };
                 const json = JSON.stringify(backup, null, 2);
-                if (downloadFile(json, backupFilename('json'), 'application/json')) {
-                    const roomCount = appData.rooms.length;
-                    const itemCount = appData.items.length;
-                    const imgCount = Object.keys(roomImages).length;
-                    alert(`✅ ส่งออก JSON แล้ว\nห้อง ${roomCount} • สิ่งของ ${itemCount} รายการ • รูปผังห้อง ${imgCount} รูป\n\nเก็บไฟล์นี้ไว้ให้ดี ใช้นำเข้ากลับได้ทุกเครื่อง`);
-                }
+                const roomCount = appData.rooms.length;
+                const itemCount = appData.items.length;
+                const imgCount = Object.keys(roomImages).length;
+                await shareOrDownloadFile(
+                    json,
+                    backupFilename('json'),
+                    'application/json',
+                    `✅ ส่งออก JSON แล้ว\nห้อง ${roomCount} • สิ่งของ ${itemCount} รายการ • รูปผังห้อง ${imgCount} รูป\n\nเก็บไฟล์นี้ไว้ให้ดี ใช้นำเข้ากลับได้ทุกเครื่อง`
+                );
             } catch (err) {
                 alert('ส่งออก JSON ไม่สำเร็จ: ' + err.message);
             }
