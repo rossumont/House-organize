@@ -39,6 +39,49 @@
         .btn-add-room { background: #4f46e5; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
         .btn-add-room:active { background: #4338ca; }
 
+        /* แถบสลับหน้า เก็บของ / ทำความสะอาด — ลอยติดล่างจอตลอด */
+        .mode-switcher { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; display: flex; gap: 8px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #e2e8f0; box-shadow: 0 -4px 16px rgba(0,0,0,0.08); max-width: 1000px; margin: 0 auto; }
+        .mode-tab { flex: 1; border: none; background: #f1f5f9; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; color: #64748b; transition: all 0.2s; }
+        .mode-tab.active { background: #4f46e5; color: white; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
+        .mode-tab#mode-tab-clean.active { background: #f97316; color: white; box-shadow: 0 2px 8px rgba(249,115,22,0.3); }
+        /* เว้นที่ล่างสุดไม่ให้เนื้อหาโดนแถบบัง */
+        body { padding-bottom: 90px; }
+
+        /* หน้าทำความสะอาด — โทนอบอุ่น ส้ม/ชมพู */
+        .clean-summary { background: linear-gradient(135deg, #fb923c 0%, #f472b6 100%); color: white; border-radius: 16px; padding: 16px 20px; margin-bottom: 16px; text-align: center; box-shadow: 0 4px 12px rgba(234,88,12,0.2); }
+        .clean-summary .big { font-size: 22px; font-weight: 800; }
+        .clean-summary .sub { font-size: 12px; opacity: 0.95; margin-top: 2px; }
+        .clean-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .clean-task-card { background: white; border: 1px solid #fed7aa; border-left: 6px solid #f97316; border-radius: 14px; padding: 14px; margin-bottom: 10px; transition: opacity 0.4s, transform 0.4s; }
+        .clean-task-card.done { opacity: 0; transform: translateX(40px); }
+        .clean-task-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .clean-task-title { font-size: 15px; font-weight: 700; color: #c2410c; }
+        .clean-task-where { font-size: 11px; color: #ea580c; background: #ffedd5; padding: 2px 8px; border-radius: 999px; display: inline-block; margin-top: 4px; }
+        .clean-task-meta { font-size: 12px; color: #9a3412; margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .clean-task-meta .overdue { color: #dc2626; font-weight: 700; }
+        .clean-task-notes { font-size: 12px; color: #78350f; background: #fff7ed; padding: 8px; border-radius: 8px; margin-top: 8px; white-space: pre-wrap; }
+        .clean-subtasks { margin-top: 10px; }
+        .clean-subtask { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; color: #78350f; }
+        .clean-subtask input { width: 18px; height: 18px; accent-color: #f97316; cursor: pointer; flex-shrink: 0; }
+        .clean-subtask .sub-del { margin-left: auto; background: none; border: none; color: #ea580c; cursor: pointer; font-size: 12px; }
+        .clean-task-actions { display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #fed7aa; }
+        .clean-task-actions button { flex: 1; border: none; border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-task-done { background: #16a34a; color: white; }
+        .btn-task-cancel { background: #9ca3af; color: white; }
+        .btn-task-del { background: #ef4444; color: white; }
+        .clean-empty { text-align: center; padding: 24px; color: #ea580c; background: #fff7ed; border-radius: 12px; }
+
+        /* ปุ่มเพิ่มงานในผังห้อง (หน้าทำความสะอาด) */
+        .clean-room-card { background: white; border: 1px solid #fed7aa; border-top: 6px solid #f97316; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+        .clean-area-box { display: flex; justify-content: space-between; align-items: center; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+        .clean-area-label { font-size: 13px; font-weight: 600; color: #9a3412; }
+        .clean-area-count { font-size: 11px; color: #ea580c; margin-left: 6px; }
+        .btn-add-task { background: #f97316; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .btn-add-task:active { background: #ea580c; }
+        .form-group { margin-bottom: 14px; }
+        .form-group > label { display: block; font-size: 12px; font-weight: 700; color: #9a3412; margin-bottom: 6px; }
+        .form-group input[type="text"], .form-group input[type="date"], .form-group input[type="number"] { width: 100%; padding: 10px; border: 2px solid #fed7aa; border-radius: 10px; font-size: 14px; font-family: inherit; }
+
         .manager-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 1001; }
         .manager-panel { position: fixed; left: 12px; right: 12px; top: 50%; transform: translateY(-50%); max-height: 85vh; background: #f8fafc; border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.3); z-index: 1002; overflow: hidden; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; }
         .manager-header { padding: 16px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
@@ -51,6 +94,8 @@
         .mgr-furn-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 14px; }
         .mgr-furn-item .furn-info { display: flex; flex-direction: column; }
         .mgr-furn-item .furn-info small { color: #94a3b8; font-size: 11px; }
+        .furn-name-input { flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        .furn-name-input:focus { outline: none; border-color: #4f46e5; }
         .btn-mgr-del { background: #fee2e2; color: #b91c1c; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .btn-mgr-del:active { background: #fecaca; }
         .mgr-add-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; }
@@ -203,6 +248,13 @@
 
         <div id="main-section" class="hidden">
 
+            <div class="mode-switcher">
+                <button class="mode-tab active" id="mode-tab-storage" onclick="switchMode('storage')">📦 เก็บของ</button>
+                <button class="mode-tab" id="mode-tab-clean" onclick="switchMode('clean')">🧹 ทำความสะอาด</button>
+            </div>
+
+            <div id="page-storage">
+
             <div class="search-card">
                 <h3 style="margin-top:0; font-size:16px;">🔎 ค้นหาสิ่งของ (เพื่อดูตำแหน่ง หรือลบ)</h3>
                 <div class="search-row">
@@ -252,6 +304,23 @@
                 </div>
             </div>
 
+            </div><!-- /page-storage -->
+
+            <div id="page-clean" class="hidden">
+                <div class="clean-summary" id="clean-summary"></div>
+                <div class="clean-toolbar">
+                    <h3 style="margin:0; font-size:16px; color:#b45309;">🧹 งานทำความสะอาด/จัดระเบียบ</h3>
+                </div>
+                <div id="clean-task-dashboard"></div>
+                <div style="margin-top:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                        <h3 style="font-size:15px; color:#b45309; margin:0;">📍 เดินดูตามพื้นที่ แล้วกดเพิ่มงานตรงจุดที่อยากทำ</h3>
+                        <button type="button" class="btn-add-task" onclick="addNewRoom()">➕ เพิ่มห้องใหม่</button>
+                    </div>
+                    <div id="clean-house-display"></div>
+                </div>
+            </div>
+
             <div class="backup-panel">
                 <div class="backup-title">💾 สำรอง / ย้ายข้อมูล</div>
                 <p class="backup-desc">เก็บข้อมูลไว้ หรือย้ายไปเครื่องอื่น • บน iPhone/iPad จะเด้งเมนูแชร์ให้เลือก "บันทึกลงไฟล์" หรือส่ง AirDrop/LINE/อีเมล • บนคอมพิวเตอร์จะดาวน์โหลดลงโฟลเดอร์ "ดาวน์โหลด"</p>
@@ -296,7 +365,57 @@
 
     <div id="undo-banner" class="undo-banner hidden">
         <span id="undo-text">ลบแล้ว</span>
-        <button onclick="undoLastChange()">↩️ เลิกทำ</button>
+        <button onclick="dispatchUndo()">↩️ เลิกทำ</button>
+    </div>
+
+    <div id="task-form-overlay" class="manager-overlay hidden" onclick="closeTaskForm()"></div>
+    <div id="task-form-panel" class="manager-panel hidden">
+        <div class="manager-header" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);">
+            <h3 style="color:#c2410c;">📝 เพิ่มงานทำความสะอาด</h3>
+            <button class="manager-close" onclick="closeTaskForm()">✕</button>
+        </div>
+        <div class="manager-body">
+            <div id="task-form-where" style="font-size:13px; font-weight:700; color:#ea580c; background:#ffedd5; padding:8px 12px; border-radius:8px; margin-bottom:14px;"></div>
+
+            <div class="form-group">
+                <label>ชื่องาน *</label>
+                <input type="text" id="task-form-name" placeholder="เช่น ทำความสะอาดตู้ครัว">
+            </div>
+            <div class="form-group">
+                <label>วันที่ตั้งใจจะทำ *</label>
+                <input type="date" id="task-form-date">
+            </div>
+            <div class="form-group">
+                <label>เวลาประมาณ *</label>
+                <div style="display:flex; gap:10px; align-items:flex-end;">
+                    <div style="flex:0 0 42%;">
+                        <div style="font-size:11px; color:#9a3412; margin-bottom:4px;">จำนวน</div>
+                        <input type="number" id="task-form-time" min="0" step="0.5" value="1" inputmode="decimal" style="width:100%; padding:12px; text-align:center; font-size:18px; font-weight:700; border:2px solid #fed7aa; border-radius:10px;">
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:11px; color:#9a3412; margin-bottom:4px;">หน่วย</div>
+                        <select id="task-form-time-unit" style="width:100%; padding:12px; border:2px solid #fed7aa; border-radius:10px; background:white; font-size:15px;">
+                            <option value="hour">ชั่วโมง</option>
+                            <option value="min">นาที</option>
+                            <option value="day">วัน</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>หมายเหตุ/รายละเอียด (พิมพ์ หรือใช้ Apple Pencil เขียนได้)</label>
+                <textarea id="task-form-notes" rows="4" placeholder="เช่น เก็บน้ำตาลไว้เยอะมาก ตั้งใจจะขนไปแจก แล้วทำความสะอาด" style="width:100%; padding:10px; border:2px solid #fed7aa; border-radius:10px; font-family:inherit; font-size:14px; resize:vertical;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>ขั้นตอนย่อย (sub-task)</label>
+                <div id="task-form-subtasks"></div>
+                <button type="button" onclick="addTaskSubtaskInput()" style="width:100%; padding:10px; background:#f0fdf4; border:2px dashed #86efac; border-radius:10px; color:#166534; cursor:pointer; font-weight:600;">+ เพิ่มขั้นตอน</button>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:16px;">
+                <button onclick="closeTaskForm()" style="flex:1; padding:12px; background:#e5e7eb; border:none; border-radius:10px; font-weight:700; cursor:pointer;">ยกเลิก</button>
+                <button onclick="saveTask()" style="flex:1; padding:12px; background:#f97316; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer;">บันทึกงาน</button>
+            </div>
+        </div>
     </div>
 
     <div id="text-fallback-overlay" class="manager-overlay hidden" onclick="closeTextFallback()"></div>
@@ -339,7 +458,7 @@
             forceExitLoading('global error: ' + (ev.message || 'unknown'));
         });
 
-        let appData = { rooms: [], items: [] };
+        let appData = { rooms: [], items: [], tasks: [] };
         let selectedLocationCode = null;
         let selectedLocationLabel = null;
         let roomImages = {};
@@ -421,12 +540,13 @@
                         appData = JSON.parse(result.value);
                     }
                 } catch (err) {
-                    appData = { rooms: [], items: [] };
+                    appData = { rooms: [], items: [], tasks: [] };
                 }
 
                 // ย้ายข้อมูลเก่า (ตู้/โต๊ะเป็นตัวเลขล้วน) ให้กลายเป็นโครงสร้างใหม่ โดยไม่ทำข้อมูลเดิมหาย
                 appData.rooms = (appData.rooms || []).map((room, idx) => migrateRoom(room, idx));
                 if (!appData.items) appData.items = [];
+                if (!appData.tasks) appData.tasks = [];
 
                 document.getElementById('loading-section').classList.add('hidden');
 
@@ -503,6 +623,10 @@
             }
             if (!Array.isArray(room.boxes)) room.boxes = [];
 
+            // พื้นที่ "อื่นๆ" (เช่น เครื่องซักผ้า อ่างล้างจาน พื้น) — มีชื่อเอง ไม่มีชั้น เหมือนกล่อง
+            // แต่จะไม่โผล่ในหน้าเก็บของ (เพราะไม่ได้เก็บของ) โผล่เฉพาะหน้าทำความสะอาด
+            if (!Array.isArray(room.others)) room.others = [];
+
             if (!room.color) {
                 room.color = ROOM_COLORS[idx % ROOM_COLORS.length];
             }
@@ -513,6 +637,7 @@
             room.nextTabNum = Math.max(0, ...room.tables.map(t => parseInt(t.id.slice(1)) || 0)) + 1;
             room.nextBedNum = Math.max(0, ...room.beds.map(b => parseInt(b.id.slice(1)) || 0)) + 1;
             room.nextBoxNum = Math.max(0, ...room.boxes.map(bx => parseInt(bx.id.slice(2)) || 0)) + 1;
+            room.nextOtherNum = Math.max(0, ...room.others.map(o => parseInt(o.id.slice(2)) || 0)) + 1;
 
             return room;
         }
@@ -678,6 +803,17 @@
             return s === 1 ? 'ด้านบน' : `ชั้นที่ ${s}`;
         }
 
+        // คืนชื่อแสดงผลของเฟอร์นิเจอร์: ถ้าตั้งชื่อเองไว้ใช้ชื่อนั้น ไม่งั้นใช้ชื่อเริ่มต้นตามชนิด
+        function furnDisplayName(type, furn) {
+            if (furn && furn.name && furn.name.trim()) return furn.name.trim();
+            if (type === 'cabinet') return 'ตู้ใบที่ ' + furn.id.slice(1);
+            if (type === 'table') return 'โต๊ะตัวที่ ' + furn.id.slice(1);
+            if (type === 'bed') return 'เตียงที่ ' + furn.id.slice(1);
+            if (type === 'box') return 'กล่องใบที่ ' + furn.id.slice(2);
+            if (type === 'other') return furn.name || 'พื้นที่อื่นๆ';
+            return furn.id;
+        }
+
         // สร้างรายการตำแหน่งเก็บของทั้งหมด จัดกลุ่มตามห้อง พร้อมสีประจำห้อง
         // ไม่ใช้ native <select> เพราะ browser บนมือถือ (โดยเฉพาะ iOS) ไม่ยอมแสดงสีของแต่ละ option ให้
         function renderLocationOptions() {
@@ -690,7 +826,7 @@
                     for (let s = 1; s <= cab.shelves; s++) {
                         options.push({
                             code: `${room.id}-${cab.id}-S${s}`,
-                            text: `ตู้ที่ ${cab.id.slice(1)} — ${shelfLabel(s)}`
+                            text: `${furnDisplayName('cabinet', cab)} — ${shelfLabel(s)}`
                         });
                     }
                 });
@@ -698,15 +834,15 @@
                     for (let s = 1; s <= tab.shelves; s++) {
                         options.push({
                             code: `${room.id}-${tab.id}-S${s}`,
-                            text: `โต๊ะที่ ${tab.id.slice(1)} — ${shelfLabel(s)}`
+                            text: `${furnDisplayName('table', tab)} — ${shelfLabel(s)}`
                         });
                     }
                 });
                 room.beds.forEach(bed => {
-                    options.push({ code: `${room.id}-${bed.id}`, text: `เตียงที่ ${bed.id.slice(1)}` });
+                    options.push({ code: `${room.id}-${bed.id}`, text: furnDisplayName('bed', bed) });
                 });
                 room.boxes.forEach(box => {
-                    options.push({ code: `${room.id}-${box.id}`, text: `กล่องใบที่ ${box.id.slice(2)}` });
+                    options.push({ code: `${room.id}-${box.id}`, text: furnDisplayName('box', box) });
                 });
 
                 if (options.length === 0) return;
@@ -839,7 +975,7 @@
                 if (room.cabinets.length > 0) {
                     html += '<div>';
                     room.cabinets.forEach(cab => {
-                        html += `<div class="furn-box bg-cabinet" style="border-left-color:${room.color};"><b style="font-size:13px; color:#4338ca;">🗄️ ตู้ใบที่ ${cab.id.slice(1)}</b>`;
+                        html += `<div class="furn-box bg-cabinet" style="border-left-color:${room.color};"><b style="font-size:13px; color:#4338ca;">🗄️ ${escapeHtml(furnDisplayName("cabinet", cab))}</b>`;
                         for (let s = 1; s <= cab.shelves; s++) {
                             html += `<div class="shelf-item"><span style="font-size:10px; color:#94a3b8; display:block;">${shelfLabel(s)}</span>${getItemsHtml(`${room.id}-${cab.id}-S${s}`)}</div>`;
                         }
@@ -851,17 +987,17 @@
                 if (room.tables.length > 0 || room.beds.length > 0 || room.boxes.length > 0) {
                     html += '<div>';
                     room.tables.forEach(tab => {
-                        html += `<div class="furn-box bg-table" style="border-left-color:${room.color};"><b style="font-size:13px; color:#b45309;">🪑 โต๊ะตัวที่ ${tab.id.slice(1)}</b>`;
+                        html += `<div class="furn-box bg-table" style="border-left-color:${room.color};"><b style="font-size:13px; color:#b45309;">🪑 ${escapeHtml(furnDisplayName("table", tab))}</b>`;
                         for (let s = 1; s <= tab.shelves; s++) {
                             html += `<div class="shelf-item"><span style="font-size:10px; color:#d97706; display:block;">${shelfLabel(s)}</span>${getItemsHtml(`${room.id}-${tab.id}-S${s}`)}</div>`;
                         }
                         html += '</div>';
                     });
                     room.beds.forEach(bed => {
-                        html += `<div class="furn-box bg-bed" style="border-left-color:${room.color};"><b style="font-size:13px; color:#047857;">🛏️ เตียงที่ ${bed.id.slice(1)}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-${bed.id}`)}</div></div>`;
+                        html += `<div class="furn-box bg-bed" style="border-left-color:${room.color};"><b style="font-size:13px; color:#047857;">🛏️ ${escapeHtml(furnDisplayName("bed", bed))}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-${bed.id}`)}</div></div>`;
                     });
                     room.boxes.forEach(box => {
-                        html += `<div class="furn-box bg-box" style="border-left-color:${room.color};"><b style="font-size:13px; color:#be185d;">📦 กล่องใบที่ ${box.id.slice(2)}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-${box.id}`)}</div></div>`;
+                        html += `<div class="furn-box bg-box" style="border-left-color:${room.color};"><b style="font-size:13px; color:#be185d;">📦 ${escapeHtml(furnDisplayName("box", box))}</b><div class="shelf-item" style="margin-top:5px;">${getItemsHtml(`${room.id}-${box.id}`)}</div></div>`;
                     });
                     html += '</div>';
                 }
@@ -994,17 +1130,21 @@
             const rest = code.slice(room.id.length + 1);
             if (rest.startsWith('C')) {
                 const [cPart, sPart] = rest.split('-');
-                return `${room.name} ➡️ ตู้ที่ ${cPart.slice(1)} ${shelfLabel(parseInt(sPart.slice(1)))}`;
+                const cab = room.cabinets.find(c => c.id === cPart);
+                return `${room.name} ➡️ ${cab ? furnDisplayName('cabinet', cab) : 'ตู้ที่ ' + cPart.slice(1)} ${shelfLabel(parseInt(sPart.slice(1)))}`;
             }
             if (rest.startsWith('T')) {
                 const [tPart, sPart] = rest.split('-');
-                return `${room.name} ➡️ โต๊ะที่ ${tPart.slice(1)} ${shelfLabel(parseInt(sPart.slice(1)))}`;
+                const tab = room.tables.find(t => t.id === tPart);
+                return `${room.name} ➡️ ${tab ? furnDisplayName('table', tab) : 'โต๊ะที่ ' + tPart.slice(1)} ${shelfLabel(parseInt(sPart.slice(1)))}`;
             }
             if (rest.startsWith('BX')) {
-                return `${room.name} ➡️ กล่องใบที่ ${rest.slice(2)}`;
+                const box = room.boxes.find(b => b.id === rest);
+                return `${room.name} ➡️ ${box ? furnDisplayName('box', box) : 'กล่องใบที่ ' + rest.slice(2)}`;
             }
             if (rest.startsWith('B')) {
-                return `${room.name} ➡️ เตียงที่ ${rest.slice(1)}`;
+                const bed = room.beds.find(b => b.id === rest);
+                return `${room.name} ➡️ ${bed ? furnDisplayName('bed', bed) : 'เตียงที่ ' + rest.slice(1)}`;
             }
             return `${room.name} ➡️ ${rest}`;
         }
@@ -1255,6 +1395,338 @@
             reader.readAsText(file);
         }
 
+        // ===== หน้าทำความสะอาด (Declutter mode) =====
+
+        let currentMode = 'storage';
+        let taskUndoSnapshot = null;
+        let taskUndoTimer = null;
+        let pendingTaskLocation = null; // { code, label } พื้นที่ที่กำลังจะเพิ่มงาน
+        let taskSubtaskInputId = 0;
+
+        // ตัวเลือกว่าปุ่มเลิกทำจะย้อนงาน (หน้าทำความสะอาด) หรือย้อนเฟอร์นิเจอร์ (หน้าเก็บของ)
+        function dispatchUndo() {
+            if (taskUndoSnapshot !== null) {
+                undoTaskChange();
+            } else {
+                undoLastChange();
+            }
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            const storagePage = document.getElementById('page-storage');
+            const cleanPage = document.getElementById('page-clean');
+            const tabS = document.getElementById('mode-tab-storage');
+            const tabC = document.getElementById('mode-tab-clean');
+
+            if (mode === 'clean') {
+                storagePage.classList.add('hidden');
+                cleanPage.classList.remove('hidden');
+                tabS.classList.remove('active');
+                tabC.classList.add('active');
+                renderCleanPage();
+            } else {
+                cleanPage.classList.add('hidden');
+                storagePage.classList.remove('hidden');
+                tabC.classList.remove('active');
+                tabS.classList.add('active');
+            }
+        }
+
+        // สร้าง label อ่านง่ายของพื้นที่ จาก code (ใช้ชื่อที่ตั้งเองถ้ามี)
+        function areaLabel(room, type, area) {
+            return furnDisplayName(type, area);
+        }
+
+        // นับงานที่ยังไม่เสร็จในพื้นที่หนึ่ง
+        function countTasksAt(code) {
+            return appData.tasks.filter(t => t.locationCode === code && t.status === 'pending').length;
+        }
+
+        // แสดงผังห้องในหน้าทำความสะอาด — ทุกพื้นที่รวม "อื่นๆ" พร้อมปุ่มเพิ่มงานต่อจุด
+        function renderCleanHouse() {
+            const container = document.getElementById('clean-house-display');
+            container.innerHTML = '';
+
+            appData.rooms.forEach(room => {
+                let html = `<div class="clean-room-card" style="border-top-color:${room.color};">
+                    <h4 style="margin:0 0 6px 0; font-size:16px; display:flex; align-items:center; gap:8px;">
+                        <span class="color-dot" style="background:${room.color};"></span>🚪 ${escapeHtml(room.name)}
+                    </h4>`;
+
+                const addAreaRow = (type, area) => {
+                    const code = `${room.id}-${area.id}`;
+                    const label = areaLabel(room, type, area);
+                    const n = countTasksAt(code);
+                    html += `<div class="clean-area-box">
+                        <div class="clean-area-label">${escapeHtml(label)}${n > 0 ? `<span class="clean-area-count">• มีงาน ${n}</span>` : ''}</div>
+                        <button class="btn-add-task" onclick="openTaskForm('${code}', '${escapeHtml(room.name)} → ${escapeHtml(label)}')">➕ เพิ่มงาน</button>
+                    </div>`;
+                };
+
+                room.cabinets.forEach(c => addAreaRow('cabinet', c));
+                room.tables.forEach(t => addAreaRow('table', t));
+                room.beds.forEach(b => addAreaRow('bed', b));
+                room.boxes.forEach(bx => addAreaRow('box', bx));
+                room.others.forEach(o => addAreaRow('other', o));
+
+                // เพิ่มงานระดับ "ทั้งห้อง" (ไม่เจาะจงพื้นที่)
+                const roomCode = `${room.id}-ROOM`;
+                const nRoom = countTasksAt(roomCode);
+                html += `<div class="clean-area-box" style="background:#fef3c7; border-color:#fcd34d;">
+                    <div class="clean-area-label">🧹 ทั้งห้อง (งานรวม)${nRoom > 0 ? `<span class="clean-area-count">• มีงาน ${nRoom}</span>` : ''}</div>
+                    <button class="btn-add-task" onclick="openTaskForm('${roomCode}', '${escapeHtml(room.name)} → ทั้งห้อง')">➕ เพิ่มงาน</button>
+                </div>`;
+
+                html += `</div>`;
+                container.innerHTML += html;
+            });
+
+            if (appData.rooms.length === 0) {
+                container.innerHTML = '<div class="clean-empty">ยังไม่มีห้อง — ไปหน้า "เก็บของ" เพื่อตั้งห้องก่อน</div>';
+            }
+        }
+
+        function renderCleanPage() {
+            renderTaskDashboard();
+            renderCleanHouse();
+        }
+
+        // ===== ฟอร์มเพิ่มงาน =====
+        function openTaskForm(locationCode, locationLabel) {
+            pendingTaskLocation = { code: locationCode, label: locationLabel };
+            document.getElementById('task-form-where').textContent = '📍 ' + locationLabel;
+            document.getElementById('task-form-name').value = '';
+            document.getElementById('task-form-notes').value = '';
+            document.getElementById('task-form-time').value = '1';
+            document.getElementById('task-form-time-unit').value = 'hour';
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('task-form-date').value = today;
+            document.getElementById('task-form-subtasks').innerHTML = '';
+            taskSubtaskInputId = 0;
+            addTaskSubtaskInput();
+            document.getElementById('task-form-overlay').classList.remove('hidden');
+            document.getElementById('task-form-panel').classList.remove('hidden');
+        }
+
+        function closeTaskForm() {
+            document.getElementById('task-form-overlay').classList.add('hidden');
+            document.getElementById('task-form-panel').classList.add('hidden');
+            pendingTaskLocation = null;
+        }
+
+        function addTaskSubtaskInput() {
+            const row = document.createElement('div');
+            row.className = 'subtask-input-row';
+            row.style.cssText = 'display:flex; gap:8px; margin-bottom:8px;';
+            row.innerHTML = `
+                <input type="text" placeholder="เช่น ขนน้ำตาลออก" style="flex:1; padding:8px; border:1px solid #fed7aa; border-radius:8px; font-size:14px;">
+                <button type="button" style="padding:8px 10px; background:#fee2e2; border:1px solid #fca5a5; border-radius:8px; color:#b91c1c; cursor:pointer;" onclick="this.parentElement.remove()">ลบ</button>
+            `;
+            document.getElementById('task-form-subtasks').appendChild(row);
+            taskSubtaskInputId++;
+        }
+
+        function saveTask() {
+            const name = document.getElementById('task-form-name').value.trim();
+            const date = document.getElementById('task-form-date').value;
+            const time = parseFloat(document.getElementById('task-form-time').value) || 1;
+            const unit = document.getElementById('task-form-time-unit').value;
+            const notes = document.getElementById('task-form-notes').value.trim();
+
+            if (!name) { alert('กรุณากรอกชื่องาน'); return; }
+            if (!date) { alert('กรุณาเลือกวันที่'); return; }
+            if (!pendingTaskLocation) { alert('ไม่พบพื้นที่'); return; }
+
+            let hours = time;
+            if (unit === 'min') hours = time / 60;
+            else if (unit === 'day') hours = time * 24;
+
+            const subtasks = Array.from(document.getElementById('task-form-subtasks').querySelectorAll('input'))
+                .map(el => el.value.trim())
+                .filter(v => v)
+                .map((text, i) => ({ id: i, text, done: false }));
+
+            appData.tasks.push({
+                id: Date.now(),
+                name,
+                date,
+                hours,
+                notes,
+                locationCode: pendingTaskLocation.code,
+                locationLabel: pendingTaskLocation.label,
+                subtasks,
+                status: 'pending',
+                completedAt: null
+            });
+
+            saveToStorage();
+            closeTaskForm();
+            renderCleanPage();
+        }
+
+        // ===== Dashboard งาน =====
+        function renderTaskDashboard() {
+            const pending = appData.tasks.filter(t => t.status === 'pending');
+            const summary = document.getElementById('clean-summary');
+            const totalHours = pending.reduce((s, t) => s + (t.hours || 0), 0);
+
+            // นับงานที่เลยกำหนด
+            const todayStr = new Date().toDateString();
+            const overdue = pending.filter(t => new Date(t.date).getTime() < new Date().setHours(0,0,0,0)).length;
+
+            const hoursText = totalHours >= 1 ? totalHours.toFixed(1) + ' ชม' : Math.round(totalHours * 60) + ' นาที';
+            summary.innerHTML = `
+                <div class="big">มี ${pending.length} งานต้องทำ</div>
+                <div class="sub">⏱️ รวมประมาณ ${hoursText}${overdue > 0 ? ` • 🔴 เลยกำหนด ${overdue}` : ''}</div>
+            `;
+
+            // เรียงตามวันหมด (ใกล้สุดบน)
+            pending.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const dash = document.getElementById('clean-task-dashboard');
+            if (pending.length === 0) {
+                dash.innerHTML = '<div class="clean-empty">✨ ยังไม่มีงานค้าง — เดินดูตามพื้นที่ด้านล่างแล้วกดเพิ่มงานได้เลย</div>';
+                return;
+            }
+            dash.innerHTML = pending.map(t => renderTaskCard(t)).join('');
+        }
+
+        function renderTaskCard(task) {
+            const dateObj = new Date(task.date);
+            const todayMid = new Date().setHours(0,0,0,0);
+            let dateLabel;
+            if (dateObj.toDateString() === new Date().toDateString()) dateLabel = '📅 วันนี้';
+            else if (dateObj.getTime() < todayMid) dateLabel = `<span class="overdue">🔴 เลยกำหนด (${dateObj.toLocaleDateString('th-TH', {day:'numeric', month:'short'})})</span>`;
+            else dateLabel = '📅 ' + dateObj.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+
+            const timeText = task.hours >= 1 ? task.hours + ' ชม' : Math.round(task.hours * 60) + ' นาที';
+
+            const subsHtml = task.subtasks.map(s => `
+                <div class="clean-subtask">
+                    <input type="checkbox" ${s.done ? 'checked' : ''} onchange="toggleTaskSubtask(${task.id}, ${s.id})">
+                    <span style="${s.done ? 'text-decoration:line-through; opacity:0.5;' : ''}">${escapeHtml(s.text)}</span>
+                    <button class="sub-del" onclick="removeTaskSubtask(${task.id}, ${s.id})">ลบ</button>
+                </div>
+            `).join('');
+
+            return `
+                <div class="clean-task-card" id="task-card-${task.id}">
+                    <div class="clean-task-head">
+                        <div>
+                            <div class="clean-task-title">${escapeHtml(task.name)}</div>
+                            <div class="clean-task-where">📍 ${escapeHtml(task.locationLabel || '')}</div>
+                        </div>
+                    </div>
+                    <div class="clean-task-meta">
+                        <span>${dateLabel}</span>
+                        <span>⏱️ ${timeText}</span>
+                    </div>
+                    ${task.notes ? `<div class="clean-task-notes">${escapeHtml(task.notes)}</div>` : ''}
+                    ${task.subtasks.length > 0 ? `<div class="clean-subtasks">${subsHtml}</div>` : ''}
+                    <div class="clean-task-actions">
+                        <button class="btn-task-done" onclick="completeTask(${task.id})">✅ เสร็จ</button>
+                        <button class="btn-task-cancel" onclick="cancelTask(${task.id})">❌ ยกเลิก</button>
+                        <button class="btn-task-del" onclick="deleteTaskDirect(${task.id})">🗑️ ลบ</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== Subtask actions =====
+        function toggleTaskSubtask(taskId, subId) {
+            const task = appData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            const sub = task.subtasks.find(s => s.id === subId);
+            if (!sub) return;
+            sub.done = !sub.done;
+            saveToStorage();
+            // ถ้า subtask ทุกอันเสร็จหมด → ถือว่างานเสร็จ
+            if (task.subtasks.length > 0 && task.subtasks.every(s => s.done)) {
+                completeTask(taskId);
+            } else {
+                renderTaskDashboard();
+            }
+        }
+
+        function removeTaskSubtask(taskId, subId) {
+            const task = appData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            task.subtasks = task.subtasks.filter(s => s.id !== subId);
+            saveToStorage();
+            renderCleanPage();
+        }
+
+        // ===== Task actions พร้อม undo =====
+        function takeTaskSnapshot() {
+            taskUndoSnapshot = JSON.stringify(appData.tasks);
+        }
+
+        function showTaskUndo(message) {
+            const banner = document.getElementById('undo-banner');
+            document.getElementById('undo-text').textContent = message;
+            banner.classList.remove('hidden');
+            if (taskUndoTimer) clearTimeout(taskUndoTimer);
+            taskUndoTimer = setTimeout(() => {
+                banner.classList.add('hidden');
+                taskUndoSnapshot = null;
+            }, 8000);
+        }
+
+        function undoTaskChange() {
+            if (!taskUndoSnapshot) return;
+            try {
+                appData.tasks = JSON.parse(taskUndoSnapshot);
+                saveToStorage();
+                taskUndoSnapshot = null;
+                document.getElementById('undo-banner').classList.add('hidden');
+                renderCleanPage();
+            } catch (e) {}
+        }
+
+        function completeTask(taskId) {
+            const task = appData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            takeTaskSnapshot();
+            task.status = 'completed';
+            task.completedAt = new Date().toISOString();
+            saveToStorage();
+
+            // ให้การ์ดค่อยๆ เลื่อนหายไป 1-2 วิ แล้วลบทิ้ง
+            const card = document.getElementById('task-card-' + taskId);
+            if (card) card.classList.add('done');
+            setTimeout(() => {
+                appData.tasks = appData.tasks.filter(t => t.id !== taskId);
+                saveToStorage();
+                renderCleanPage();
+            }, 1500);
+            showTaskUndo(`✅ ทำ "${task.name}" เสร็จแล้ว ดีงาม!`);
+        }
+
+        function cancelTask(taskId) {
+            const task = appData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            takeTaskSnapshot();
+            const card = document.getElementById('task-card-' + taskId);
+            if (card) card.classList.add('done');
+            setTimeout(() => {
+                appData.tasks = appData.tasks.filter(t => t.id !== taskId);
+                saveToStorage();
+                renderCleanPage();
+            }, 1200);
+            showTaskUndo(`ยกเลิกงาน "${task.name}" แล้ว`);
+        }
+
+        function deleteTaskDirect(taskId) {
+            const task = appData.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            takeTaskSnapshot();
+            appData.tasks = appData.tasks.filter(t => t.id !== taskId);
+            saveToStorage();
+            renderCleanPage();
+            showTaskUndo(`ลบงาน "${task.name}" แล้ว`);
+        }
+
         // ===== ระบบจัดการห้อง/เฟอร์นิเจอร์ (เพิ่ม/ลบ ตู้ โต๊ะ เตียง กล่อง และห้อง) =====
 
         let currentManagedRoomId = null;
@@ -1324,6 +1796,38 @@
             document.getElementById('manager-panel').classList.add('hidden');
         }
 
+        // สร้างแถวเฟอร์นิเจอร์ในหน้าจัดการ พร้อมช่องแก้ชื่อ (placeholder = ชื่อเริ่มต้น)
+        function furnRowWithName(type, furn, detail, defaultName) {
+            const currentName = (furn.name && furn.name.trim()) ? furn.name.trim() : '';
+            return `
+                <div class="mgr-furn-item" style="flex-direction:column; align-items:stretch; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="text" class="furn-name-input" id="furn-name-${type}-${furn.id}"
+                            value="${escapeHtml(currentName)}" placeholder="${escapeHtml(defaultName)}"
+                            onchange="renameFurniture('${type}','${furn.id}', this.value)">
+                        <button class="btn-mgr-del" onclick="deleteFurniture('${type}','${furn.id}')">ลบ</button>
+                    </div>
+                    <small style="color:#94a3b8; font-size:11px;">${detail}</small>
+                </div>`;
+        }
+
+        // ตั้ง/แก้ชื่อเฟอร์นิเจอร์ (ตู้ โต๊ะ เตียง กล่อง) — ว่าง = กลับไปใช้ชื่อเริ่มต้น
+        function renameFurniture(type, furnId, newName) {
+            const room = appData.rooms.find(r => r.id === currentManagedRoomId);
+            if (!room) return;
+            const arr = type === 'cabinet' ? room.cabinets : type === 'table' ? room.tables : type === 'bed' ? room.beds : room.boxes;
+            const furn = arr.find(f => f.id === furnId);
+            if (!furn) return;
+            const trimmed = (newName || '').trim();
+            if (trimmed) furn.name = trimmed;
+            else delete furn.name; // ว่าง = ใช้ชื่อเริ่มต้น
+            saveToStorage();
+            renderLocationOptions();
+            renderHouse();
+            renderSearchResults();
+            if (currentMode === 'clean') renderCleanPage();
+        }
+
         function renderRoomManager() {
             const room = appData.rooms.find(r => r.id === currentManagedRoomId);
             if (!room) { closeRoomManager(); return; }
@@ -1349,11 +1853,7 @@
             html += `<div class="mgr-section"><div class="mgr-section-title">🗄️ ตู้ (${room.cabinets.length} ใบ)</div>`;
             room.cabinets.forEach(cab => {
                 const n = countItemsByPrefix(`${room.id}-${cab.id}`);
-                html += `
-                    <div class="mgr-furn-item">
-                        <div class="furn-info">ตู้ใบที่ ${cab.id.slice(1)} <small>${cab.shelves} ชั้น • มีของ ${n} ชิ้น</small></div>
-                        <button class="btn-mgr-del" onclick="deleteFurniture('cabinet','${cab.id}')">ลบ</button>
-                    </div>`;
+                html += furnRowWithName('cabinet', cab, `${cab.shelves} ชั้น • มีของ ${n} ชิ้น`, 'ตู้ใบที่ ' + cab.id.slice(1));
             });
             html += `
                 <div class="mgr-add-row">
@@ -1365,11 +1865,7 @@
             html += `<div class="mgr-section"><div class="mgr-section-title">🪑 โต๊ะ (${room.tables.length} ตัว)</div>`;
             room.tables.forEach(tab => {
                 const n = countItemsByPrefix(`${room.id}-${tab.id}`);
-                html += `
-                    <div class="mgr-furn-item">
-                        <div class="furn-info">โต๊ะตัวที่ ${tab.id.slice(1)} <small>${tab.shelves} ชั้น • มีของ ${n} ชิ้น</small></div>
-                        <button class="btn-mgr-del" onclick="deleteFurniture('table','${tab.id}')">ลบ</button>
-                    </div>`;
+                html += furnRowWithName('table', tab, `${tab.shelves} ชั้น • มีของ ${n} ชิ้น`, 'โต๊ะตัวที่ ' + tab.id.slice(1));
             });
             html += `
                 <div class="mgr-add-row">
@@ -1381,11 +1877,7 @@
             html += `<div class="mgr-section"><div class="mgr-section-title">🛏️ เตียง (${room.beds.length} เตียง)</div>`;
             room.beds.forEach(bed => {
                 const n = countItemsByPrefix(`${room.id}-${bed.id}`);
-                html += `
-                    <div class="mgr-furn-item">
-                        <div class="furn-info">เตียงที่ ${bed.id.slice(1)} <small>มีของ ${n} ชิ้น</small></div>
-                        <button class="btn-mgr-del" onclick="deleteFurniture('bed','${bed.id}')">ลบ</button>
-                    </div>`;
+                html += furnRowWithName('bed', bed, `มีของ ${n} ชิ้น`, 'เตียงที่ ' + bed.id.slice(1));
             });
             html += `<div class="mgr-add-row"><button class="btn-mgr-add" onclick="addFurniture('bed')" style="width:100%;">➕ เพิ่มเตียง</button></div></div>`;
 
@@ -1393,13 +1885,25 @@
             html += `<div class="mgr-section"><div class="mgr-section-title">📦 กล่องใส่ของ (${room.boxes.length} กล่อง)</div>`;
             room.boxes.forEach(box => {
                 const n = countItemsByPrefix(`${room.id}-${box.id}`);
-                html += `
-                    <div class="mgr-furn-item">
-                        <div class="furn-info">กล่องใบที่ ${box.id.slice(2)} <small>มีของ ${n} ชิ้น</small></div>
-                        <button class="btn-mgr-del" onclick="deleteFurniture('box','${box.id}')">ลบ</button>
-                    </div>`;
+                html += furnRowWithName('box', box, `มีของ ${n} ชิ้น`, 'กล่องใบที่ ' + box.id.slice(2));
             });
             html += `<div class="mgr-add-row"><button class="btn-mgr-add" onclick="addFurniture('box')" style="width:100%;">➕ เพิ่มกล่อง</button></div></div>`;
+
+            // --- พื้นที่อื่นๆ (เครื่องซักผ้า อ่างล้างจาน ฯลฯ) — โผล่เฉพาะหน้าทำความสะอาด ---
+            html += `<div class="mgr-section"><div class="mgr-section-title">🧺 พื้นที่อื่นๆ (${room.others.length}) <small style="font-weight:400; color:#94a3b8;">— แสดงเฉพาะหน้าทำความสะอาด</small></div>`;
+            room.others.forEach(o => {
+                const n = countTasksAt(`${room.id}-${o.id}`);
+                html += `
+                    <div class="mgr-furn-item">
+                        <div class="furn-info">${escapeHtml(o.name)} <small>${n > 0 ? 'มีงาน ' + n : 'ไม่มีงานค้าง'}</small></div>
+                        <button class="btn-mgr-del" onclick="deleteFurniture('other','${o.id}')">ลบ</button>
+                    </div>`;
+            });
+            html += `
+                <div class="mgr-add-row">
+                    <div class="input-group"><label>ชื่อพื้นที่ใหม่</label><input type="text" id="mgr-new-other-name" placeholder="เช่น เครื่องซักผ้า, พื้น, ผนัง"></div>
+                    <button class="btn-mgr-add" onclick="addFurniture('other')">➕ เพิ่ม</button>
+                </div></div>`;
 
             // --- โซนอันตราย: ลบห้อง ---
             const totalItems = appData.items.filter(it => getRoomByCode(it.locationCode) === room).length;
@@ -1461,12 +1965,21 @@
                 room.nextBoxNum++;
                 room.boxes.push({ id });
                 showUndo(`เพิ่มกล่องใบที่ ${id.slice(2)} แล้ว`);
+            } else if (type === 'other') {
+                const nameEl = document.getElementById('mgr-new-other-name');
+                const name = (nameEl.value || '').trim();
+                if (!name) { alert('กรุณาตั้งชื่อพื้นที่'); return; }
+                const id = 'OT' + room.nextOtherNum;
+                room.nextOtherNum++;
+                room.others.push({ id, name });
+                showUndo(`เพิ่มพื้นที่ "${name}" แล้ว`);
             }
 
             saveToStorage();
             renderRoomManager();
             renderLocationOptions();
             renderHouse();
+            if (currentMode === 'clean') renderCleanPage();
         }
 
         function deleteFurniture(type, furnId) {
@@ -1474,26 +1987,34 @@
             if (!room) return;
 
             const itemCount = countItemsByPrefix(`${room.id}-${furnId}`);
-            const typeLabel = { cabinet: 'ตู้', table: 'โต๊ะ', bed: 'เตียง', box: 'กล่อง' }[type];
+            const typeLabel = { cabinet: 'ตู้', table: 'โต๊ะ', bed: 'เตียง', box: 'กล่อง', other: 'พื้นที่' }[type];
 
-            // เตือนก่อนลบ โดยเฉพาะถ้ามีของอยู่ข้างใน
+            // นับงานทำความสะอาดที่ผูกกับพื้นที่นี้ (ทุกชนิดมีงานได้)
+            const prefix = `${room.id}-${furnId}`;
+            const taskCount = appData.tasks.filter(t => t.locationCode === prefix || t.locationCode.startsWith(prefix + '-')).length;
+
+            // เตือนก่อนลบ โดยเฉพาะถ้ามีของ/งานอยู่ข้างใน
             let msg = `ต้องการลบ${typeLabel}นี้ใช่ไหม?`;
-            if (itemCount > 0) {
-                msg = `⚠️ ${typeLabel}นี้มีของอยู่ ${itemCount} ชิ้น\nถ้าลบ ของทั้ง ${itemCount} ชิ้นในนี้จะถูกลบไปด้วย (กู้คืนได้ด้วยปุ่มเลิกทำ)\n\nยืนยันลบหรือไม่?`;
+            const warns = [];
+            if (itemCount > 0) warns.push(`ของ ${itemCount} ชิ้น`);
+            if (taskCount > 0) warns.push(`งาน ${taskCount} รายการ`);
+            if (warns.length > 0) {
+                msg = `⚠️ ${typeLabel}นี้มี ${warns.join(' และ ')} อยู่\nถ้าลบ ${warns.join(' และ ')} จะถูกลบไปด้วย (กู้คืนได้ด้วยปุ่มเลิกทำ)\n\nยืนยันลบหรือไม่?`;
             }
             if (!confirm(msg)) return;
 
             takeSnapshot();
 
-            // ลบของที่อยู่ในเฟอร์นิเจอร์นี้ทั้งหมด
-            const prefix = `${room.id}-${furnId}`;
+            // ลบของและงานที่อยู่ในพื้นที่นี้ทั้งหมด
             appData.items = appData.items.filter(it => !(it.locationCode === prefix || it.locationCode.startsWith(prefix + '-')));
+            appData.tasks = appData.tasks.filter(t => !(t.locationCode === prefix || t.locationCode.startsWith(prefix + '-')));
 
             // ลบตัวเฟอร์นิเจอร์ออกจาก array (id ที่ถูกลบจะไม่ถูกนำกลับมาใช้ เพราะใช้ nextXxxNum เดินหน้าอย่างเดียว)
             if (type === 'cabinet') room.cabinets = room.cabinets.filter(c => c.id !== furnId);
             else if (type === 'table') room.tables = room.tables.filter(t => t.id !== furnId);
             else if (type === 'bed') room.beds = room.beds.filter(b => b.id !== furnId);
             else if (type === 'box') room.boxes = room.boxes.filter(bx => bx.id !== furnId);
+            else if (type === 'other') room.others = room.others.filter(o => o.id !== furnId);
 
             selectedLocationCode = null; // กันตำแหน่งที่เลือกไว้ชี้ไปที่เพิ่งลบ
             saveToStorage();
@@ -1501,7 +2022,11 @@
             renderLocationOptions();
             renderHouse();
             renderSearchResults();
-            showUndo(`ลบ${typeLabel}แล้ว${itemCount > 0 ? ` (พร้อมของ ${itemCount} ชิ้น)` : ''}`);
+            if (currentMode === 'clean') renderCleanPage();
+            const delParts = [];
+            if (itemCount > 0) delParts.push(`ของ ${itemCount} ชิ้น`);
+            if (taskCount > 0) delParts.push(`งาน ${taskCount} รายการ`);
+            showUndo(`ลบ${typeLabel}แล้ว${delParts.length > 0 ? ` (พร้อม ${delParts.join(' และ ')})` : ''}`);
         }
 
         function deleteRoom() {
@@ -1516,6 +2041,8 @@
 
             // ลบของทุกชิ้นในห้อง
             appData.items = appData.items.filter(it => getRoomByCode(it.locationCode) !== room);
+            // ลบงานทำความสะอาดทุกงานในห้อง (locationCode ขึ้นต้นด้วย room.id)
+            appData.tasks = appData.tasks.filter(t => !(t.locationCode && t.locationCode.startsWith(room.id + '-')));
             // ลบรูปผังห้อง
             try { store.remove('roomImage:' + room.id); } catch (e) {}
             delete roomImages[room.id];
@@ -1529,6 +2056,7 @@
             renderRoomLegend();
             renderHouse();
             renderSearchResults();
+            if (currentMode === 'clean') renderCleanPage();
             showUndo(`ลบห้อง "${room.name}" แล้ว`);
         }
 
@@ -1557,8 +2085,9 @@
             renderRoomLegend();
             renderHouse();
             renderSearchResults();
+            if (currentMode === 'clean') renderCleanPage();
             showUndo(`เพิ่มห้อง "${roomName}" แล้ว`);
-            // เปิดหน้าจัดการห้องใหม่ทันที เพื่อให้ผู้ใช้เพิ่มตู้/โต๊ะได้เลย
+            // เปิดหน้าจัดการห้องใหม่ทันที เพื่อให้ผู้ใช้เพิ่มตู้/โต๊ะ/พื้นที่ได้เลย
             openRoomManager(newId);
         }
 
